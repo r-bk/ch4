@@ -1,0 +1,95 @@
+name: ci
+
+on:
+  push:
+    branches-ignore:
+      - '**-wip'
+  pull_request:
+  schedule:
+    - cron: '0 1 * * 0'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  ci:
+    runs-on: ${{ matrix.runs_on }}
+    strategy:
+      matrix:
+        rust:
+          - stable
+          - beta
+          - 1.53.0  # MSRV
+        runs_on:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
+        feature:
+          - net-std
+          - net-async-std
+          - net-tokio
+          - net-smol
+        include:
+          - runs_on: ubuntu-latest
+            feature: net-tokio,socket2
+            rust: stable
+          - runs_on: ubuntu-latest
+            feature: net-tokio,socket2
+            rust: beta
+          - runs_on: ubuntu-latest
+            feature: net-tokio,socket2
+            rust: 1.53.0  # MSRV
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: ${{ matrix.rust }}
+          override: true
+          components: rustfmt, clippy
+
+      - uses: actions-rs/cargo@v1
+        name: build ch4
+        with:
+          command: build
+          args: --no-default-features --features ${{ matrix.feature }}
+
+      - uses: actions-rs/cargo@v1
+        name: show ch4 info
+        if: ${{ !(matrix.feature == 'net-async-std' && matrix.runs_on == 'windows-latest') }}
+        env:
+          RUST_BACKTRACE: "full"
+        with:
+          command: run
+          args: --no-default-features --features ${{ matrix.feature }} -- --info
+
+      - uses: actions-rs/cargo@v1
+        name: test ch4
+        with:
+          command: test
+          args: --no-default-features --features ${{ matrix.feature }}
+
+      - uses: actions-rs/cargo@v1
+        name: lint ch4
+        with:
+          command: clippy
+          args: --no-default-features --features ${{ matrix.feature }} -- -D warnings
+
+  common-ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+          override: true
+          components: rustfmt
+      - uses: actions-rs/cargo@v1
+        name: format all
+        with:
+          command: fmt
+          args: -- --check
