@@ -1,6 +1,6 @@
 # ch4 - DNS Stub Resolver CLI
 
-**ch4** is a DNS Stub Resolver CLI utility built around [rsdns](https://github.com/r-bk/rsdns).
+**ch4** is a DNS Stub Resolver CLI tool built around [rsdns](https://github.com/r-bk/rsdns).
 
 **!!! UNDER CONSTRUCTION !!!**
 
