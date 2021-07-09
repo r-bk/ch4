@@ -1,6 +1,6 @@
 use crate::{args::Args, output::Output};
 use anyhow::Result;
-use rsdns::constants::QClass;
+use rsdns::constants::RClass;
 use std::time::SystemTime;
 
 {% if async == "true" %}
@@ -30,7 +30,7 @@ pub {% if async == "true" %}async{% endif %} fn main() -> Result<()> {
     for (index, qname) in qnames.iter().enumerate() {
         let now = SystemTime::now();
         let size = resolver
-            .query_raw(qname, qtype, QClass::In, &mut buf){% if async == "true" %}.await{% endif %}?;
+            .query_raw(qname, qtype, RClass::In, &mut buf){% if async == "true" %}.await{% endif %}?;
         let elapsed = now.elapsed().expect("time failed");
 
 

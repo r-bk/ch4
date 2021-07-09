@@ -2,7 +2,7 @@ use crate::args::Args;
 use anyhow::Result;
 use chrono::{DateTime, Local};
 use rsdns::{
-    constants::QType,
+    constants::RType,
     message::{reader::MessageReader, Header},
     resolvers::config::ResolverConfig,
 };
@@ -19,7 +19,7 @@ const QTYPE_WIDTH: usize = 7;
 pub struct Output<'a, 'b, 'c, 'd> {
     args: &'a Args,
     qname: &'b str,
-    qtype: QType,
+    qtype: RType,
     msg: &'c [u8],
     ts: SystemTime,
     elapsed: Duration,
@@ -30,7 +30,7 @@ impl<'a, 'b, 'c, 'd> Output<'a, 'b, 'c, 'd> {
     pub fn new(
         args: &'a Args,
         qname: &'b str,
-        qtype: QType,
+        qtype: RType,
         msg: &'c [u8],
         ts: SystemTime,
         elapsed: Duration,

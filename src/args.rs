@@ -1,6 +1,6 @@
 use anyhow::Result;
 use rsdns::{
-    constants::QType,
+    constants::RType,
     resolvers::config::{ProtocolStrategy, Recursion, ResolverConfig},
 };
 #[cfg(unix)]
@@ -141,12 +141,12 @@ impl Args {
         }
     }
 
-    pub fn parse(&self) -> Result<(ResolverConfig, QType, Vec<String>)> {
+    pub fn parse(&self) -> Result<(ResolverConfig, RType, Vec<String>)> {
         let mut protocol_strategy = ProtocolStrategy::Default;
         let mut nameserver_ip_addr: Option<IpAddr> = None;
         let mut recursion = Recursion::On;
         let mut free_args = Vec::new();
-        let mut qtype = QType::A;
+        let mut qtype = RType::A;
 
         for a in self.positional.iter() {
             match a.as_str() {
@@ -162,8 +162,8 @@ impl Args {
                         exit(1);
                     }
                 },
-                s if QType::from_str(&s.to_uppercase()).is_ok() => {
-                    qtype = QType::from_str(&s.to_uppercase()).unwrap()
+                s if RType::from_str(&s.to_uppercase()).is_ok() => {
+                    qtype = RType::from_str(&s.to_uppercase()).unwrap()
                 }
                 _ => free_args.push(a.clone()),
             }
