@@ -1,0 +1,3 @@
+[submodule "dep/rsdns"]
+	path = dep/rsdns
+	url = git@github.com:r-bk/rsdns.git
