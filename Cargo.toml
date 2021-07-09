@@ -8,6 +8,7 @@ license = "MIT OR Apache-2.0"
 keywords = ["dns", "client", "async", "resolver", "tokio", "async-std", "smol"]
 categories = ["command-line-utilities", "network-programming"]
 repository = "https://github.com/r-bk/ch4"
+resolver = "2"
 
 [features]
 default = ["net-tokio"]
