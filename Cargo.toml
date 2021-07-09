@@ -19,7 +19,7 @@ socket2 = ["rsdns/socket2"]
 
 [dependencies.rsdns]
 version = "0.1.0"
-path = "dep/rsdns/rsdns"
+path = "dep/rsdns"
 default-features = false
 
 [dependencies]
