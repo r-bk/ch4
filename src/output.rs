@@ -4,7 +4,7 @@ use chrono::{DateTime, Local};
 use rsdns::{
     constants::RType,
     message::{reader::MessageReader, Header},
-    resolvers::config::ResolverConfig,
+    resolvers::ResolverConfig,
 };
 use std::{
     fmt::Write,

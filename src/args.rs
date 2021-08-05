@@ -1,7 +1,7 @@
 use anyhow::Result;
 use rsdns::{
     constants::RType,
-    resolvers::config::{ProtocolStrategy, Recursion, ResolverConfig},
+    resolvers::{ProtocolStrategy, Recursion, ResolverConfig},
 };
 #[cfg(unix)]
 use std::io::{BufRead, BufReader};
