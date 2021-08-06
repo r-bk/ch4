@@ -47,6 +47,9 @@ pub struct Args {
     #[structopt(long, help = "Prints build information")]
     info: bool,
 
+    #[structopt(long, help = "Uses query_rrset API instead of query_raw")]
+    pub rrset: bool,
+
     #[structopt(verbatim_doc_comment)]
     /// Positional arguments ...
     ///
@@ -167,6 +170,16 @@ impl Args {
                 }
                 _ => free_args.push(a.clone()),
             }
+        }
+
+        if !qtype.is_data_type() {
+            if qtype != RType::Any {
+                eprintln!("only data-type queries are supported or ANY: {}", qtype);
+            }
+            if self.rrset {
+                eprintln!("only data-type queries are allowed with --rrset: {}", qtype);
+            }
+            exit(1);
         }
 
         let nameserver = match nameserver_ip_addr {
