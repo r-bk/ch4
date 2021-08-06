@@ -27,7 +27,7 @@ mod std_main {
 }
 
 pub(crate) mod args;
-pub(crate) mod output;
+pub(crate) mod fmt;
 
 cfg_if::cfg_if! {
     if #[cfg(feature = "net-tokio")] {

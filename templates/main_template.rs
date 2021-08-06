@@ -1,4 +1,4 @@
-use crate::{args::Args, output::Output};
+use crate::{args::Args, fmt::zone::Output};
 use anyhow::Result;
 use rsdns::constants::RClass;
 use std::time::SystemTime;
