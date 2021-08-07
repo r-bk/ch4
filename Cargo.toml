@@ -19,26 +19,26 @@ net-smol = ["rsdns/net-smol", "smol"]
 socket2 = ["rsdns/socket2"]
 
 [dependencies.rsdns]
-version = "0.1.0"
+version = "~0.1.0"
 path = "dep/rsdns"
 default-features = false
 
 [dependencies]
-cfg-if = "1.0.0"
-anyhow = "1.0.42"
-structopt = "0.3"
-chrono = "0.4.19"
+cfg-if = "~1.0.0"
+anyhow = "~1.0.42"
+structopt = "~0.3.22"
+chrono = "~0.4.19"
 tokio = { version = "1", optional = true, features = ["rt", "macros"]}
 async-std = { version = "1", optional = true, features = ["attributes"] }
 smol = { version = "1", optional = true }
 
 [target.'cfg(windows)'.dependencies]
-windows = "0.18.0"
+windows = "~0.18.0"
 
 [build-dependencies]
-built = { version = "0.5.1", features = ["git2", "chrono"] }
-tera = { version = "1.12.1", default-features = false }
-sysinfo = { version = "0.20.0" }
+built = { version = "~0.5.1", features = ["git2", "chrono"] }
+tera = { version = "~1.12.1", default-features = false }
+sysinfo = { version = "~0.20.0" }
 
 [target.'cfg(windows)'.build-dependencies]
-windows = "0.18.0"
+windows = "~0.18.0"
