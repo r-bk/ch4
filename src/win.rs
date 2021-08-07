@@ -6,18 +6,18 @@ mod bindings {
 }
 
 use bindings::Windows::Win32::{
-    Debug::WIN32_ERROR,
-    IpHelper::*,
-    WinSock::{SOCKADDR_IN, SOCKADDR_IN6},
+    NetworkManagement::IpHelper::*,
+    Networking::WinSock::{SOCKADDR_IN, SOCKADDR_IN6},
+    System::Diagnostics::Debug::*,
 };
 
 pub fn get_dns_servers() -> Result<Vec<SocketAddr>> {
-    let flags = GET_ADAPTERS_ADDRESSES_FLAGS::GAA_FLAG_INCLUDE_TUNNEL_BINDINGORDER;
+    let flags = GAA_FLAG_INCLUDE_TUNNEL_BINDINGORDER;
 
     let ans = unsafe {
         let mut buf_size = 0;
         let error = GetAdaptersAddresses(
-            ADDRESS_FAMILY::AF_UNSPEC,
+            AF_UNSPEC,
             flags,
             std::ptr::null_mut(),
             std::ptr::null_mut(),
@@ -25,7 +25,7 @@ pub fn get_dns_servers() -> Result<Vec<SocketAddr>> {
         );
 
         match WIN32_ERROR::from(error) {
-            WIN32_ERROR::ERROR_BUFFER_OVERFLOW => {}
+            ERROR_BUFFER_OVERFLOW => {}
             e => {
                 bail!("GetAdaptersAddresses#1 failed: {:?}", e);
             }
@@ -39,7 +39,7 @@ pub fn get_dns_servers() -> Result<Vec<SocketAddr>> {
 
         let mut buf_size = new_capacity - prefix.len() as u32;
         let error = GetAdaptersAddresses(
-            ADDRESS_FAMILY::AF_UNSPEC,
+            AF_UNSPEC,
             flags,
             std::ptr::null_mut(),
             body.as_mut_ptr(),
@@ -47,7 +47,7 @@ pub fn get_dns_servers() -> Result<Vec<SocketAddr>> {
         );
 
         match WIN32_ERROR::from(error) {
-            WIN32_ERROR::NO_ERROR => {}
+            NO_ERROR => {}
             e => {
                 bail!("GetAdaptersAddresses#2 failed: {:?}", e);
             }
@@ -77,7 +77,7 @@ unsafe fn get_adapter_dns_servers(a: &IP_ADAPTER_ADDRESSES_LH) -> Vec<SocketAddr
         let sock_addr = (*p_address).Address.lpSockaddr;
         if !sock_addr.is_null() {
             match ADDRESS_FAMILY::from((*sock_addr).sa_family as u32) {
-                ADDRESS_FAMILY::AF_INET => {
+                AF_INET => {
                     let p_sockaddr_in: *const SOCKADDR_IN = sock_addr.cast();
                     let ipv4 = Ipv4Addr::from(u32::from_be((*p_sockaddr_in).sin_addr.S_un.S_addr));
                     if !ipv4.is_unspecified() {
@@ -88,7 +88,7 @@ unsafe fn get_adapter_dns_servers(a: &IP_ADAPTER_ADDRESSES_LH) -> Vec<SocketAddr
                         ans.push(SocketAddr::from((ipv4, port)));
                     }
                 }
-                ADDRESS_FAMILY::AF_INET6 => {
+                AF_INET6 => {
                     let p_sockaddr_in6: *const SOCKADDR_IN6 = sock_addr.cast();
                     let ipv6 = Ipv6Addr::from((*p_sockaddr_in6).sin6_addr.u.Byte);
                     if !ipv6.is_unspecified() && !is_unicast_site_local(&ipv6) {

@@ -5,9 +5,9 @@ use tera::{Context, Tera};
 fn main() {
     #[cfg(windows)]
     windows::build!(
-        Windows::Win32::IpHelper::*,
-        Windows::Win32::Debug::WIN32_ERROR,
-        Windows::Win32::WinSock::*,
+        Windows::Win32::NetworkManagement::IpHelper::*,
+        Windows::Win32::System::Diagnostics::Debug::*,
+        Windows::Win32::Networking::WinSock::*,
     );
 
     built::write_built_file().expect("built failed");
