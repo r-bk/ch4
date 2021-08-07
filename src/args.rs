@@ -175,11 +175,12 @@ impl Args {
         if !qtype.is_data_type() {
             if qtype != RType::Any {
                 eprintln!("only data-type queries are supported or ANY: {}", qtype);
+                exit(1);
             }
             if self.rrset {
                 eprintln!("only data-type queries are allowed with --rrset: {}", qtype);
+                exit(1);
             }
-            exit(1);
         }
 
         let nameserver = match nameserver_ip_addr {
