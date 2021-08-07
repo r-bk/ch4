@@ -1,9 +1,13 @@
-use crate::args::Args;
+use crate::{
+    args::Args,
+    fmt::rdata::{RDataFmt, RDataFormatter},
+};
 use anyhow::Result;
 use chrono::{DateTime, Local};
 use rsdns::{
     constants::RType,
     message::{reader::MessageReader, Header},
+    records::data::RecordData,
     resolvers::ResolverConfig,
 };
 use std::{
@@ -103,6 +107,7 @@ impl<'a, 'b, 'c, 'd> Output<'a, 'b, 'c, 'd> {
         let mr = MessageReader::new(self.msg)?;
         println!("{}", Self::format_response_header(mr.header())?);
         println!("{}", self.format_question(&mr)?);
+        println!("{}", self.format_records(&mr)?);
         Ok(())
     }
 
@@ -134,7 +139,7 @@ impl<'a, 'b, 'c, 'd> Output<'a, 'b, 'c, 'd> {
         #[allow(clippy::for_loops_over_fallibles)]
         for q in mr.questions() {
             let q = q?;
-            writeln!(
+            write!(
                 &mut output,
                 ";{:dn_width$}{:ttl_width$}{:qc_width$}{:qt_width$}",
                 q.qname,
@@ -147,6 +152,56 @@ impl<'a, 'b, 'c, 'd> Output<'a, 'b, 'c, 'd> {
                 qt_width = self.sizes.rtype,
             )?;
         }
+        Ok(output)
+    }
+
+    fn format_records(&self, mr: &MessageReader) -> Result<String> {
+        let mut output = String::new();
+        let mut section = None;
+
+        for res in mr.records() {
+            let (sec, rec) = res?;
+            if section != Some(sec) {
+                section = Some(sec);
+                writeln!(&mut output, "\n;; {} SECTION:", sec.to_str().to_uppercase())?;
+            }
+
+            write!(
+                &mut output,
+                "{:dn_width$}{:ttl_width$}{:qc_width$}{:qt_width$}",
+                rec.name,
+                rec.ttl.to_string(),
+                rec.rclass,
+                rec.rtype,
+                dn_width = self.sizes.name,
+                ttl_width = self.sizes.ttl,
+                qc_width = self.sizes.rclass,
+                qt_width = self.sizes.rtype,
+            )?;
+
+            match rec.rdata {
+                RecordData::A(ref a) => RDataFmt::fmt(&mut output, a)?,
+                RecordData::Aaaa(ref aaaa) => RDataFmt::fmt(&mut output, aaaa)?,
+                RecordData::Cname(ref cname) => RDataFmt::fmt(&mut output, cname)?,
+                RecordData::Ns(ref ns) => RDataFmt::fmt(&mut output, ns)?,
+                RecordData::Soa(ref soa) => RDataFmt::fmt(&mut output, soa)?,
+                RecordData::Ptr(ref ptr) => RDataFmt::fmt(&mut output, ptr)?,
+                RecordData::Mx(ref mx) => RDataFmt::fmt(&mut output, mx)?,
+                RecordData::Txt(ref txt) => RDataFmt::fmt(&mut output, txt)?,
+                RecordData::Wks(_)
+                | RecordData::Null(_)
+                | RecordData::Mr(_)
+                | RecordData::Mg(_)
+                | RecordData::Mb(_)
+                | RecordData::Mf(_)
+                | RecordData::Hinfo(_)
+                | RecordData::Minfo(_)
+                | RecordData::Md(_) => write!(&mut output, "OBSOLETE RTYPE")?,
+            }
+
+            writeln!(&mut output)?;
+        }
+
         Ok(output)
     }
 
