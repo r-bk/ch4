@@ -74,7 +74,7 @@ pub {{ as }} fn main() -> Result<()> {
                 .query_raw(qname, qtype, RClass::In, &mut buf){{ aw }}?;
             let elapsed = now.elapsed().expect("time failed");
 
-            let output = Output::new(&args, qname, qtype, &buf[..size], now, elapsed, &conf);
+            let output = Output::new(&args, qname, qtype, &buf[..size], now, elapsed, &conf)?;
             output.print()?;
             if index < qnames.len() - 1 {
                 println!();

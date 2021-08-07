@@ -11,9 +11,18 @@ use std::{
     time::{Duration, SystemTime},
 };
 
-const DOMAIN_NAME_WIDTH: usize = 32;
+const DOMAIN_NAME_WIDTH: usize = 24;
 const QCLASS_WIDTH: usize = 7;
 const QTYPE_WIDTH: usize = 7;
+const TTL_WIDTH: usize = 7;
+
+#[derive(Debug, Default, Copy, Clone)]
+struct Sizes {
+    name: usize,
+    ttl: usize,
+    rclass: usize,
+    rtype: usize,
+}
 
 #[allow(dead_code)]
 pub struct Output<'a, 'b, 'c, 'd> {
@@ -24,6 +33,15 @@ pub struct Output<'a, 'b, 'c, 'd> {
     ts: SystemTime,
     elapsed: Duration,
     resolver_conf: &'d ResolverConfig,
+    sizes: Sizes,
+}
+
+macro_rules! fmt_size {
+    ($itm:expr, $buf:ident) => {{
+        $buf.clear();
+        write!(&mut $buf, "{}", $itm)?;
+        $buf.len()
+    }};
 }
 
 impl<'a, 'b, 'c, 'd> Output<'a, 'b, 'c, 'd> {
@@ -35,8 +53,9 @@ impl<'a, 'b, 'c, 'd> Output<'a, 'b, 'c, 'd> {
         ts: SystemTime,
         elapsed: Duration,
         resolver_conf: &'d ResolverConfig,
-    ) -> Self {
-        Self {
+    ) -> Result<Self> {
+        let sizes = Self::find_sizes(msg)?;
+        Ok(Self {
             args,
             qname,
             qtype,
@@ -44,7 +63,33 @@ impl<'a, 'b, 'c, 'd> Output<'a, 'b, 'c, 'd> {
             ts,
             elapsed,
             resolver_conf,
+            sizes,
+        })
+    }
+
+    fn find_sizes(msg: &[u8]) -> Result<Sizes> {
+        let mut sizes = Sizes::default();
+        let mut buf = String::new();
+        let mr = MessageReader::new(msg)?;
+        let q = mr.question()?;
+        sizes.name = sizes.name.max(q.qname.len());
+        sizes.rclass = sizes.rclass.max(fmt_size!(q.qclass, buf));
+        sizes.rtype = sizes.rtype.max(fmt_size!(q.qtype, buf));
+
+        for res in mr.records() {
+            let (_, rec) = res?;
+            sizes.name = sizes.name.max(rec.name.len());
+            sizes.rclass = sizes.rclass.max(fmt_size!(rec.rclass, buf));
+            sizes.rtype = sizes.rtype.max(fmt_size!(rec.rtype, buf));
+            sizes.ttl = sizes.ttl.max(fmt_size!(rec.ttl, buf));
         }
+
+        sizes.name = DOMAIN_NAME_WIDTH.max(sizes.name + 2);
+        sizes.rtype = QTYPE_WIDTH.max(sizes.rtype + 1);
+        sizes.rclass = QCLASS_WIDTH.max(sizes.rclass + 1);
+        sizes.ttl = TTL_WIDTH.max(sizes.ttl + 1);
+
+        Ok(sizes)
     }
 
     pub fn print(&self) -> Result<()> {
@@ -57,7 +102,7 @@ impl<'a, 'b, 'c, 'd> Output<'a, 'b, 'c, 'd> {
     fn print_message(&self) -> Result<()> {
         let mut mr = MessageReader::new(self.msg)?;
         println!("{}", Self::format_response_header(mr.header())?);
-        println!("{}", Self::format_question(&mut mr)?);
+        println!("{}", self.format_question(&mut mr)?);
         Ok(())
     }
 
@@ -82,31 +127,24 @@ impl<'a, 'b, 'c, 'd> Output<'a, 'b, 'c, 'd> {
         Ok(output)
     }
 
-    fn format_question(mr: &mut MessageReader) -> Result<String> {
+    fn format_question(&self, mr: &mut MessageReader) -> Result<String> {
         let mut output = String::new();
         writeln!(&mut output, ";; QUESTION SECTION:")?;
 
         #[allow(clippy::for_loops_over_fallibles)]
         for q in mr.questions() {
             let q = q?;
-            let dn_width = DOMAIN_NAME_WIDTH - 2;
-            let mut qc_width = QCLASS_WIDTH;
-            let mut qt_width = QTYPE_WIDTH;
-
-            if q.qname.len() > dn_width {
-                qc_width = 0;
-                qt_width = 0;
-            }
-
             writeln!(
                 &mut output,
-                ";{:dn_width$} {:qc_width$} {:qt_width$}",
+                ";{:dn_width$}{:ttl_width$}{:qc_width$}{:qt_width$}",
                 q.qname,
+                " ",
                 q.qclass,
                 q.qtype,
-                dn_width = dn_width,
-                qc_width = qc_width,
-                qt_width = qt_width,
+                dn_width = self.sizes.name - 1,
+                ttl_width = self.sizes.ttl,
+                qc_width = self.sizes.rclass,
+                qt_width = self.sizes.rtype,
             )?;
         }
         Ok(output)
