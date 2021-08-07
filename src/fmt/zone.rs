@@ -100,9 +100,9 @@ impl<'a, 'b, 'c, 'd> Output<'a, 'b, 'c, 'd> {
     }
 
     fn print_message(&self) -> Result<()> {
-        let mut mr = MessageReader::new(self.msg)?;
+        let mr = MessageReader::new(self.msg)?;
         println!("{}", Self::format_response_header(mr.header())?);
-        println!("{}", self.format_question(&mut mr)?);
+        println!("{}", self.format_question(&mr)?);
         Ok(())
     }
 
@@ -127,7 +127,7 @@ impl<'a, 'b, 'c, 'd> Output<'a, 'b, 'c, 'd> {
         Ok(output)
     }
 
-    fn format_question(&self, mr: &mut MessageReader) -> Result<String> {
+    fn format_question(&self, mr: &MessageReader) -> Result<String> {
         let mut output = String::new();
         writeln!(&mut output, ";; QUESTION SECTION:")?;
 
