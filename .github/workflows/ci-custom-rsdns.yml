@@ -1,9 +1,8 @@
-name: ci
+name: ci-custom-rsdns
 
 on:
   push:
-    branches-ignore:
-      - '**-wip'
+    branches:
       - '**-custom'
   pull_request:
   schedule:
@@ -44,6 +43,26 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: true
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "3.x"
+
+      - uses: jannekem/run-python-script-action@v1
+        with:
+          script: |
+            lines = []
+            with open("Cargo.toml", "r") as cargo:
+                lines = cargo.readlines()
+
+            for i in range(len(lines)):
+                if lines[i] == '# path = "dep/rsdns"\n':
+                    lines[i] = 'path = "dep/rsdns"\n'
+                    print('rsdns path set to "dep/rsdns"')
+
+            with open("Cargo.toml", "w") as cargo:
+                cargo.write(''.join(lines))
+            print('Cargo.toml updated succcessfully')
 
       - uses: actions-rs/toolchain@v1
         with:
