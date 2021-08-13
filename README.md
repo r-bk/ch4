@@ -18,6 +18,16 @@ by *rsdns* via the same set of features `net-tokio`, `net-async-std`, `net-smol`
 3. Supported RFCs are listed in [rsdns](https://github.com/r-bk/rsdns)
 
 
+## Installation
+
+```shell
+cargo install ch4
+```
+
+*ch4* currently doesn't provide pre-built binaries.
+See [rustrup.rs](https://rustup.rs) for installation of cargo and the Rust toolchain.
+
+
 ## Examples
 
 Nameserver address can be specified with `@` prefix.
