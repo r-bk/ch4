@@ -5,8 +5,8 @@ authors = ["Rafael Buchbinder <rafi@rbk.io>"]
 edition = "2018"
 description = "DNS Stub Resolver CLI"
 license = "MIT OR Apache-2.0"
-keywords = ["dns", "client", "async", "resolver", "tokio", "async-std", "smol"]
-categories = ["command-line-utilities", "network-programming"]
+keywords = ["dns", "client", "cli", "resolver"]
+categories = ["command-line-utilities"]
 repository = "https://github.com/r-bk/ch4"
 resolver = "2"
 
