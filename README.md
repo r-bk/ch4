@@ -171,14 +171,11 @@ Some build information and the list of auto-detected DNS servers are shown via `
 ```shell
 $> ch4 --info
 
-build time:          Fri, 13 Aug 2021 05:02:04 +0000
-build semver:        0.1.0
-git version:         n/a
-git commit hash:     6b11f4e7c0693b241f41f3607fb16fee064ba130
-git branch:          refs/heads/master
+build time:          Fri, 13 Aug 2021 15:11:06 +0000
+ch4 semver:          0.2.0
+git hash:            n/a
 compiler:            rustc
 rustc:               rustc 1.54.0 (a178d0322 2021-07-26)
-ci platform:         Generic CI
 cargo features:      net_tokio, tokio
 cargo profile:       debug
 cargo target:        x86_64-pc-windows-msvc
@@ -187,7 +184,7 @@ pointer width:       64
 build system name:   Windows
 build os version:    Windows Server 2019 Datacenter
 build cpu vendor:    GenuineIntel
-build cpu brand:     Intel(R) Xeon(R) Platinum 8171M CPU @ 2.60GHz
+build cpu brand:     Intel(R) Xeon(R) CPU E5-2673 v4 @ 2.30GHz
 dns server #0:       168.63.129.16:53
 ```
 

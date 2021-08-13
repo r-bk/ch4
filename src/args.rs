@@ -96,26 +96,15 @@ impl Args {
 
     fn show_info() {
         println!("build time:          {}", bi::BUILT_TIME_UTC);
-        println!("build semver:        {}", bi::PKG_VERSION);
+        println!("ch4 semver:          {}", bi::PKG_VERSION);
         println!(
-            "git version:         {}",
-            bi::GIT_VERSION.or(Some("n/a")).unwrap()
-        );
-        println!(
-            "git commit hash:     {}",
+            "git hash:            {}",
             bi::GIT_COMMIT_HASH.or(Some("n/a")).unwrap()
-        );
-        println!(
-            "git branch:          {}",
-            bi::GIT_HEAD_REF.or(Some("n/a")).unwrap()
         );
 
         println!("compiler:            {}", bi::RUSTC);
         println!("rustc:               {}", bi::RUSTC_VERSION);
-        println!(
-            "ci platform:         {}",
-            bi::CI_PLATFORM.or(Some("n/a")).unwrap()
-        );
+
         println!("cargo features:      {}", bi::FEATURES_STR.to_lowercase());
         println!("cargo profile:       {}", bi::PROFILE);
         println!("cargo target:        {}", bi::TARGET);
