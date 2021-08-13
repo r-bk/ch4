@@ -53,20 +53,20 @@ pub struct Args {
     #[structopt(verbatim_doc_comment)]
     /// Positional arguments ...
     ///
-    /// The following arguments may be specified without any particular
-    /// order. Arguments specified later take precedence.
+    /// Positional arguments may be specified without any particular order.
+    /// Arguments specified later take precedence.
+    /// Arguments that are not recognized as special are treated as names
+    /// to be queried.
     ///
     ///
-    /// @<nameserver> - specifies the nameserver IP address. On Unix, if not
-    ///                 specified on command line, the first nameserver from
-    ///                 /etc/resolv.conf is used.
+    /// @<nameserver> - specifies the nameserver IP address.
+    ///                 If not specified, the first nameserver from OS
+    ///                 configuration is used.
     ///
-    /// <qname>       - domain name to query. Any argument that doesn't match
-    ///                 others is considered as such.
-    ///
-    /// <qtype>       - query type (A, AAAA etc.).
-    ///                 Any argument matching any of the supported query types
-    ///                 is considered as such.
+    /// <qtype>       - query type (A, AAAA, NS ...).
+    ///                 An argument matching any of the supported query types
+    ///                 is considered as query type. Trailing dot can be
+    ///                 used to disambiguate a query name (A.).
     ///
     /// +udp          - sets the Udp protocol strategy.
     ///                 UDP is preferred for all queries including ANY.
@@ -74,8 +74,8 @@ pub struct Args {
     /// +tcp          - sets the Tcp protocol strategy.
     ///                 Only TCP is used for all queries.
     ///
-    /// +notcp        - sets NoTcp protocol strategy. When enabled, only UDP
-    ///                 is used. Truncated queries are returned as is.
+    /// +notcp        - sets NoTcp protocol strategy. Only UDP is used.
+    ///                 Truncated queries are returned as is.
     ///
     /// +[no]rec      - enables (disables) recursive query.
     ///                 Queries are recursive by default.
