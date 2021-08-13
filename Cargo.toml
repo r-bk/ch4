@@ -19,7 +19,7 @@ net-smol = ["rsdns/net-smol", "smol"]
 socket2 = ["rsdns/socket2"]
 
 [dependencies.rsdns]
-version = "~0.2.0"
+version = "~0.3.0"
 path = "dep/rsdns"
 default-features = false
 
