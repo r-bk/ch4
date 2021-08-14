@@ -169,7 +169,7 @@ ARGS:
 Some build information and the list of auto-detected DNS servers are shown via `--info` flag.
 
 ```shell
-$> ch4 --info
+C:\> ch4.exe --info
 
 build time:          Fri, 13 Aug 2021 15:11:06 +0000
 ch4 semver:          0.2.0
