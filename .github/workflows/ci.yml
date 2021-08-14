@@ -30,6 +30,7 @@ jobs:
           - net-async-std
           - net-tokio
           - net-smol
+          - default
         include:
           - runs_on: ubuntu-latest
             feature: net-tokio,socket2
