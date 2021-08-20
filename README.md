@@ -10,6 +10,10 @@ with which it tries to be mostly compatible.
 corresponding *rsdns* resolver. It can be built with all resolvers and async runtimes supported
 by *rsdns* via the same set of features `net-tokio`, `net-async-std`, `net-smol` and `net-std`.
 
+[![crates.io][crates-badge]][crates-url]
+
+[crates-badge]: https://img.shields.io/crates/v/ch4.svg
+[crates-url]: https://crates.io/crates/ch4
 
 ## Features
 
