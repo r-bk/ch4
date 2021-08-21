@@ -97,9 +97,13 @@ impl<'a, 'b, 'c, 'd> Output<'a, 'b, 'c, 'd> {
     }
 
     pub fn print(&self) -> Result<()> {
-        self.print_header();
-        self.print_message()?;
-        self.print_footer();
+        if !self.args.short {
+            self.print_header();
+            self.print_message()?;
+            self.print_footer();
+        } else {
+            self.print_records_short()?;
+        }
         Ok(())
     }
 
@@ -108,6 +112,12 @@ impl<'a, 'b, 'c, 'd> Output<'a, 'b, 'c, 'd> {
         println!("{}", Self::format_response_header(mr.header())?);
         println!("{}", self.format_question(&mr)?);
         println!("{}", self.format_records(&mr)?);
+        Ok(())
+    }
+
+    fn print_records_short(&self) -> Result<()> {
+        let mr = MessageReader::new(self.msg)?;
+        print!("{}", self.format_records(&mr)?);
         Ok(())
     }
 
@@ -161,23 +171,25 @@ impl<'a, 'b, 'c, 'd> Output<'a, 'b, 'c, 'd> {
 
         for res in mr.records() {
             let (sec, rec) = res?;
-            if section != Some(sec) {
+            if !self.args.short && section != Some(sec) {
                 section = Some(sec);
                 writeln!(&mut output, "\n;; {} SECTION:", sec.to_str().to_uppercase())?;
             }
 
-            write!(
-                &mut output,
-                "{:dn_width$}{:ttl_width$}{:qc_width$}{:qt_width$}",
-                rec.name,
-                rec.ttl.to_string(),
-                rec.rclass,
-                rec.rtype,
-                dn_width = self.sizes.name,
-                ttl_width = self.sizes.ttl,
-                qc_width = self.sizes.rclass,
-                qt_width = self.sizes.rtype,
-            )?;
+            if !self.args.short {
+                write!(
+                    &mut output,
+                    "{:dn_width$}{:ttl_width$}{:qc_width$}{:qt_width$}",
+                    rec.name,
+                    rec.ttl.to_string(),
+                    rec.rclass,
+                    rec.rtype,
+                    dn_width = self.sizes.name,
+                    ttl_width = self.sizes.ttl,
+                    qc_width = self.sizes.rclass,
+                    qt_width = self.sizes.rtype,
+                )?;
+            }
 
             match rec.rdata {
                 RecordData::A(ref a) => RDataFmt::fmt(&mut output, a)?,

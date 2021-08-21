@@ -1,7 +1,7 @@
 use crate::{args::Args, fmt::{zone::Output, rrset, rdata}};
 use anyhow::{bail, Result};
 use rsdns::{constants::{RClass, RType}, records::data::{self, RData}};
-use std::{fmt::Write, time::SystemTime};
+use std::time::SystemTime;
 
 {% if async == "true" %}
 {% set as = "async"  %}
@@ -29,9 +29,8 @@ where
 {
     let rrset = r.query_rrset::<D>(qname, RClass::In){{ aw }}?;
     let mut buf = String::new();
-    writeln!(&mut buf, "QName: {}", qname)?;
-    rrset::fmt(&mut buf, &rrset)?;
-    println!("{}", buf);
+    rrset::fmt_short(&mut buf, &rrset)?;
+    print!("{}", buf);
     Ok(())
 }
 
@@ -62,13 +61,13 @@ where
 pub {{ as }} fn main() -> Result<()> {
     let mut buf = [0u8; u16::MAX as usize];
 
-    let args = Args::get();
+    let mut args = Args::get();
     let (conf, qtype, qnames) = args.parse()?;
 
     let mut resolver = Resolver::new(conf.clone()){{ aw }}?;
 
     for (index, qname) in qnames.iter().enumerate() {
-        if !args.rrset {
+        if !args.short || qtype.is_meta_type() {
             let now = SystemTime::now();
             let size = resolver
                 .query_raw(qname, qtype, RClass::In, &mut buf){{ aw }}?;
@@ -76,7 +75,7 @@ pub {{ as }} fn main() -> Result<()> {
 
             let output = Output::new(&args, qname, qtype, &buf[..size], now, elapsed, &conf)?;
             output.print()?;
-            if index < qnames.len() - 1 {
+            if qnames.len() > 1 && index < qnames.len() - 1 {
                 println!();
             }
         } else {

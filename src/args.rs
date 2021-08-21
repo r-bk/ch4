@@ -47,8 +47,8 @@ pub struct Args {
     #[structopt(long, help = "Prints build information")]
     info: bool,
 
-    #[structopt(long, help = "Uses query_rrset API instead of query_raw")]
-    pub rrset: bool,
+    #[structopt(skip)]
+    pub short: bool,
 
     #[structopt(verbatim_doc_comment)]
     /// Positional arguments ...
@@ -79,6 +79,10 @@ pub struct Args {
     ///
     /// +[no]rec      - enables (disables) recursive query.
     ///                 Queries are recursive by default.
+    ///
+    /// +[no]short    - enables (disables) short output.
+    ///                 When enabled, only record data is printed,
+    ///                 one record on a line.
     pub positional: Vec<String>,
 }
 
@@ -133,10 +137,11 @@ impl Args {
         }
     }
 
-    pub fn parse(&self) -> Result<(ResolverConfig, RType, Vec<String>)> {
+    pub fn parse(&mut self) -> Result<(ResolverConfig, RType, Vec<String>)> {
         let mut protocol_strategy = ProtocolStrategy::Default;
         let mut nameserver_ip_addr: Option<IpAddr> = None;
         let mut recursion = Recursion::On;
+        let mut short = false;
         let mut free_args = Vec::new();
         let mut qtype = RType::A;
 
@@ -147,6 +152,8 @@ impl Args {
                 "+notcp" => protocol_strategy = ProtocolStrategy::NoTcp,
                 "+rec" => recursion = Recursion::On,
                 "+norec" => recursion = Recursion::Off,
+                "+short" => short = true,
+                "+noshort" => short = false,
                 s if s.starts_with('@') => match IpAddr::from_str(&s[1..]) {
                     Ok(addr) => nameserver_ip_addr = Some(addr),
                     Err(_) => {
@@ -161,15 +168,11 @@ impl Args {
             }
         }
 
-        if !qtype.is_data_type() {
-            if qtype != RType::Any {
-                eprintln!("only data-type queries are supported or ANY: {}", qtype);
-                exit(1);
-            }
-            if self.rrset {
-                eprintln!("only data-type queries are allowed with --rrset: {}", qtype);
-                exit(1);
-            }
+        self.short = short;
+
+        if !qtype.is_data_type() && qtype != RType::Any {
+            eprintln!("only data-type queries are supported or ANY: {}", qtype);
+            exit(1);
         }
 
         let nameserver = match nameserver_ip_addr {
