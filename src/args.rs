@@ -50,7 +50,7 @@ pub struct Args {
     #[structopt(skip)]
     pub short: bool,
 
-    #[structopt(long, help = "List system nameservers")]
+    #[structopt(long, help = "Lists system nameservers")]
     list_nameservers: bool,
 
     #[structopt(verbatim_doc_comment)]
