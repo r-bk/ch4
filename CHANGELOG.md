@@ -1,3 +1,8 @@
+# 0.3.1 (Aug 27, 2021)
+
+- fix `@` nameserver prefix example in the README file
+- add a link to the CHANGELOG in the README file
+
 # 0.3.0 (Aug 27, 2021)
 
 - `--rrset` flag was removed
