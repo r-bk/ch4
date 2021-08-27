@@ -193,30 +193,22 @@ impl Args {
                             Ok(v) => v,
                             Err(_) => Vec::new(),
                         };
-
-                        if nameservers.is_empty() {
-                            eprintln!("no nameservers");
-                            exit(1);
-                        }
-
-                        SocketAddr::from((nameservers[0], self.port))
                     } else if #[cfg(windows)] {
                         let nameservers = match crate::win::get_dns_servers() {
                             Ok(v) => v,
                             Err(_) => Vec::new(),
                         };
-
-                        if nameservers.is_empty() {
-                            eprintln!("no nameservers");
-                            exit(1);
-                        }
-
-                        nameservers[0]
                     } else {
-                        eprintln!("no nameserver");
-                        exit(1);
+                        let nameservers = Vec::<IpAddr>::new();
                     }
+                };
+
+                if nameservers.is_empty() {
+                    eprintln!("no nameservers");
+                    exit(1);
                 }
+
+                SocketAddr::from((nameservers[0], self.port))
             }
         };
 

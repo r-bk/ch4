@@ -1,5 +1,5 @@
 use anyhow::{bail, Result};
-use std::net::{Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrV6};
+use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 
 mod bindings {
     windows::include_bindings!();
@@ -11,7 +11,7 @@ use bindings::Windows::Win32::{
     System::Diagnostics::Debug::*,
 };
 
-pub fn get_dns_servers() -> Result<Vec<SocketAddr>> {
+pub fn get_dns_servers() -> Result<Vec<IpAddr>> {
     let flags = GAA_FLAG_INCLUDE_TUNNEL_BINDINGORDER;
 
     let ans = unsafe {
@@ -70,7 +70,7 @@ pub fn get_dns_servers() -> Result<Vec<SocketAddr>> {
     Ok(ans)
 }
 
-unsafe fn get_adapter_dns_servers(a: &IP_ADAPTER_ADDRESSES_LH) -> Vec<SocketAddr> {
+unsafe fn get_adapter_dns_servers(a: &IP_ADAPTER_ADDRESSES_LH) -> Vec<IpAddr> {
     let mut p_address = a.FirstDnsServerAddress;
     let mut ans = Vec::new();
     while !p_address.is_null() {
@@ -81,26 +81,14 @@ unsafe fn get_adapter_dns_servers(a: &IP_ADAPTER_ADDRESSES_LH) -> Vec<SocketAddr
                     let p_sockaddr_in: *const SOCKADDR_IN = sock_addr.cast();
                     let ipv4 = Ipv4Addr::from(u32::from_be((*p_sockaddr_in).sin_addr.S_un.S_addr));
                     if !ipv4.is_unspecified() {
-                        let mut port = u16::from_be((*p_sockaddr_in).sin_port);
-                        if port == 0 {
-                            port = 53;
-                        }
-                        ans.push(SocketAddr::from((ipv4, port)));
+                        ans.push(ipv4.into());
                     }
                 }
                 AF_INET6 => {
                     let p_sockaddr_in6: *const SOCKADDR_IN6 = sock_addr.cast();
                     let ipv6 = Ipv6Addr::from((*p_sockaddr_in6).sin6_addr.u.Byte);
                     if !ipv6.is_unspecified() && !is_unicast_site_local(&ipv6) {
-                        let mut port = u16::from_be((*p_sockaddr_in6).sin6_port);
-                        if port == 0 {
-                            port = 53;
-                        }
-                        let flowinfo = u32::from_be((*p_sockaddr_in6).sin6_flowinfo);
-                        let scope_id = u32::from_be((*p_sockaddr_in6).Anonymous.sin6_scope_id);
-                        ans.push(SocketAddr::from(SocketAddrV6::new(
-                            ipv6, port, flowinfo, scope_id,
-                        )));
+                        ans.push(ipv6.into());
                     }
                 }
                 _ => {}
