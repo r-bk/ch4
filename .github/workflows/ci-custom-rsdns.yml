@@ -86,6 +86,15 @@ jobs:
           args: --no-default-features --features ${{ matrix.feature }} -- --info
 
       - uses: actions-rs/cargo@v1
+        name: ch4 list nameservers
+        if: ${{ !(matrix.feature == 'net-async-std' && matrix.runs_on == 'windows-latest') }}
+        env:
+          RUST_BACKTRACE: "full"
+        with:
+          command: run
+          args: --no-default-features --features ${{ matrix.feature }} -- --list-nameservers
+
+      - uses: actions-rs/cargo@v1
         name: test ch4
         with:
           command: test

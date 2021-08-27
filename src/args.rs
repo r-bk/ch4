@@ -50,6 +50,9 @@ pub struct Args {
     #[structopt(skip)]
     pub short: bool,
 
+    #[structopt(long, help = "List system nameservers")]
+    list_nameservers: bool,
+
     #[structopt(verbatim_doc_comment)]
     /// Positional arguments ...
     ///
@@ -95,6 +98,11 @@ impl Args {
             exit(0);
         }
 
+        if args.list_nameservers {
+            Args::list_nameservers().expect("failed to list nameservers");
+            exit(0);
+        }
+
         args
     }
 
@@ -119,22 +127,23 @@ impl Args {
         println!("build os version:    {}", env!("CH4_SYSINFO_OS_VERSION"));
         println!("build cpu vendor:    {}", env!("CH4_SYSINFO_CPU_VENDOR"));
         println!("build cpu brand:     {}", env!("CH4_SYSINFO_CPU_BRAND"));
+    }
 
+    fn list_nameservers() -> Result<()> {
         cfg_if::cfg_if! {
             if #[cfg(unix)] {
-                if let Ok(dns_servers) = Self::load_resolv_conf() {
-                    for (index, addr) in dns_servers.iter().enumerate() {
-                        println!("dns server #{}:       {}", index, addr);
-                    }
+                let dns_servers = Self::load_resolv_conf()?;
+                for addr in dns_servers.iter() {
+                    println!("{}", addr);
                 }
             } else if #[cfg(windows)] {
-                if let Ok(dns_servers) = crate::win::get_dns_servers() {
-                    for (index, addr) in dns_servers.iter().enumerate() {
-                        println!("dns server #{}:       {}", index, addr);
-                    }
+                let dns_servers = crate::win::get_dns_servers()?;
+                for addr in dns_servers.iter() {
+                    println!("{}", addr);
                 }
             }
         }
+        Ok(())
     }
 
     pub fn parse(&mut self) -> Result<(ResolverConfig, RType, Vec<String>)> {
