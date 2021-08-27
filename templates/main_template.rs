@@ -61,7 +61,7 @@ where
 pub {{ as }} fn main() -> Result<()> {
     let mut buf = [0u8; u16::MAX as usize];
 
-    let mut args = Args::get();
+    let mut args = Args::get()?;
     let (conf, qtype, qnames) = args.parse()?;
 
     let mut resolver = Resolver::new(conf.clone()){{ aw }}?;

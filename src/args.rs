@@ -90,7 +90,7 @@ pub struct Args {
 }
 
 impl Args {
-    pub fn get() -> Args {
+    pub fn get() -> Result<Args> {
         let args = Args::from_args();
 
         if args.info {
@@ -99,11 +99,11 @@ impl Args {
         }
 
         if args.list_nameservers {
-            Args::list_nameservers().expect("failed to list nameservers");
+            Args::list_nameservers()?;
             exit(0);
         }
 
-        args
+        Ok(args)
     }
 
     fn show_info() {
