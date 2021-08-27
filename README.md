@@ -193,6 +193,10 @@ build cpu vendor:    GenuineIntel
 build cpu brand:     Intel(R) Xeon(R) CPU E5-2673 v3 @ 2.40GHz
 ```
 
+## Changelog
+
+The changelog is maintained in [CHANGELOG.md](CHANGELOG.md)
+
 
 ## License
 
