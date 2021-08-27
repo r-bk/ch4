@@ -37,23 +37,23 @@ See [rustrup.rs](https://rustup.rs) for installation of cargo and the Rust toolc
 Nameserver address can be specified with `@` prefix.
 
 ```shell
-$> ch4 A docs.rs
-; <<>> ch4 0.3.0 git:2f7bcb6 <<>> A docs.rs
-;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 56363
+$> ch4 @8.8.8.8 A docs.rs
+; <<>> ch4 0.3.0 git:deb5c3d <<>> A docs.rs
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 56069
 ;; flags: qr rd ra; QUERY: 1, ANSWER: 4, AUTHORITY: 0, ADDITIONAL: 0
 
 ;; QUESTION SECTION:
 ;docs.rs.                      IN     A
 
 ;; ANSWER SECTION:
-docs.rs.                60     IN     A      13.225.255.105
 docs.rs.                60     IN     A      13.225.255.26
 docs.rs.                60     IN     A      13.225.255.46
+docs.rs.                60     IN     A      13.225.255.105
 docs.rs.                60     IN     A      13.225.255.38
 
-;; Query time: 19.416334ms
-;; SERVER: 127.0.0.53:53
-;; WHEN: Fri, 27 Aug 2021 11:05:53 +0300
+;; Query time: 85.354011ms
+;; SERVER: 8.8.8.8:53
+;; WHEN: Fri, 27 Aug 2021 12:16:10 +0300
 ;; MSG SIZE rcvd: 89
 ```
 
