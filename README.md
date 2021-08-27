@@ -34,7 +34,7 @@ See [rustrup.rs](https://rustup.rs) for installation of cargo and the Rust toolc
 
 ## Examples
 
-Nameserver address can be specified with `@` prefix.
+Nameserver address can be specified with the `@` prefix.
 
 ```shell
 $> ch4 @8.8.8.8 A docs.rs
