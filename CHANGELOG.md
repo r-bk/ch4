@@ -22,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - update Cargo dependencies
 
 ### Removed
-- remove `--rrset` flag, in favor of `+short` flag (see below)
+- remove `--rrset` in favor of the `+short` flag
 
 ## [0.2.0] - 2021-08-13
 ### Added
