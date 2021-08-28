@@ -200,13 +200,13 @@ impl<'a, 'b, 'c, 'd> Output<'a, 'b, 'c, 'd> {
                 RecordData::Ptr(ref ptr) => RDataFmt::fmt(&mut output, ptr)?,
                 RecordData::Mx(ref mx) => RDataFmt::fmt(&mut output, mx)?,
                 RecordData::Txt(ref txt) => RDataFmt::fmt(&mut output, txt)?,
+                RecordData::Hinfo(ref hinfo) => RDataFmt::fmt(&mut output, hinfo)?,
                 RecordData::Wks(_)
                 | RecordData::Null(_)
                 | RecordData::Mr(_)
                 | RecordData::Mg(_)
                 | RecordData::Mb(_)
                 | RecordData::Mf(_)
-                | RecordData::Hinfo(_)
                 | RecordData::Minfo(_)
                 | RecordData::Md(_) => write!(&mut output, "OBSOLETE RTYPE")?,
             }

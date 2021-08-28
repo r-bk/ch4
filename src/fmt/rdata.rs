@@ -75,7 +75,18 @@ impl<W: Write> RDataFormatter<W, data::Ptr> for RDataFmt {
     }
 }
 
-obsolete!(Hinfo);
+impl<W: Write> RDataFormatter<W, data::Hinfo> for RDataFmt {
+    fn fmt(w: &mut W, d: &data::Hinfo) -> Result<()> {
+        write!(
+            w,
+            "\"{}\" \"{}\"",
+            str_from_text(&d.cpu),
+            str_from_text(&d.os)
+        )?;
+        Ok(())
+    }
+}
+
 obsolete!(Minfo);
 
 impl<W: Write> RDataFormatter<W, data::Mx> for RDataFmt {
