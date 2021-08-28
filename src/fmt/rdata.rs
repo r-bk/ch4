@@ -14,6 +14,13 @@ macro_rules! obsolete {
     };
 }
 
+fn str_from_text(text: &[u8]) -> &str {
+    match std::str::from_utf8(text) {
+        Ok(s) => s,
+        Err(_) => "__CH4_NON_UTF8_STRING__",
+    }
+}
+
 pub trait RDataFormatter<W: Write, D: data::RData> {
     fn fmt(w: &mut W, d: &D) -> Result<()>;
 }
@@ -80,13 +87,7 @@ impl<W: Write> RDataFormatter<W, data::Mx> for RDataFmt {
 
 impl<W: Write> RDataFormatter<W, data::Txt> for RDataFmt {
     fn fmt(w: &mut W, d: &data::Txt) -> Result<()> {
-        let utf8 = match std::str::from_utf8(&d.text) {
-            Ok(s) => s,
-            Err(_) => {
-                write!(w, "__CH4_NON_UTF8_STRING__")?;
-                return Ok(());
-            }
-        };
+        let utf8 = str_from_text(&d.text);
         write!(w, "\"{}\"", utf8)?;
         Ok(())
     }
