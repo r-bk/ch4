@@ -3,6 +3,9 @@ use anyhow::Result;
 #[cfg(windows)]
 pub(crate) mod win;
 
+#[cfg(unix)]
+pub(crate) mod uni;
+
 #[cfg(any(
     all(
         feature = "net-tokio",
@@ -52,5 +55,17 @@ cfg_if::cfg_if! {
         }
     } else {
         compile_error!("One of the net features must be enabled!!!");
+    }
+}
+
+pub fn os_nameservers() -> Result<Vec<std::net::IpAddr>> {
+    cfg_if::cfg_if! {
+        if #[cfg(unix)] {
+            uni::get_dns_servers()
+        } else if #[cfg(windows)] {
+            win::get_dns_servers()
+        } else {
+            Ok(Vec::new())
+        }
     }
 }

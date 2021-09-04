@@ -3,8 +3,6 @@ use rsdns::{
     constants::Type,
     resolvers::{ProtocolStrategy, Recursion, ResolverConfig},
 };
-#[cfg(unix)]
-use std::io::{BufRead, BufReader};
 use std::{
     net::{IpAddr, SocketAddr},
     process::exit,
@@ -130,18 +128,9 @@ impl Args {
     }
 
     fn list_nameservers() -> Result<()> {
-        cfg_if::cfg_if! {
-            if #[cfg(unix)] {
-                let dns_servers = Self::load_resolv_conf()?;
-                for addr in dns_servers.iter() {
-                    println!("{}", addr);
-                }
-            } else if #[cfg(windows)] {
-                let dns_servers = crate::win::get_dns_servers()?;
-                for addr in dns_servers.iter() {
-                    println!("{}", addr);
-                }
-            }
+        let dns_servers = crate::os_nameservers()?;
+        for addr in dns_servers.iter() {
+            println!("{}", addr);
         }
         Ok(())
     }
@@ -187,28 +176,12 @@ impl Args {
         let nameserver = match nameserver_ip_addr {
             Some(addr) => SocketAddr::from((addr, self.port)),
             None => {
-                cfg_if::cfg_if! {
-                    if #[cfg(unix)] {
-                        let nameservers = match Self::load_resolv_conf() {
-                            Ok(v) => v,
-                            Err(_) => Vec::new(),
-                        };
-                    } else if #[cfg(windows)] {
-                        let nameservers = match crate::win::get_dns_servers() {
-                            Ok(v) => v,
-                            Err(_) => Vec::new(),
-                        };
-                    } else {
-                        let nameservers = Vec::<IpAddr>::new();
-                    }
-                };
-
-                if nameservers.is_empty() {
+                if let Ok(v) = crate::os_nameservers() {
+                    SocketAddr::from((v[0], self.port))
+                } else {
                     eprintln!("no nameservers");
                     exit(1);
                 }
-
-                SocketAddr::from((nameservers[0], self.port))
             }
         };
 
@@ -229,36 +202,5 @@ impl Args {
         }
 
         Ok((conf, qtype, free_args))
-    }
-
-    #[cfg(unix)]
-    fn load_resolv_conf() -> Result<Vec<IpAddr>> {
-        let mut addr_list = Vec::new();
-
-        let f = std::fs::File::open("/etc/resolv.conf")?;
-        for line in BufReader::new(f).lines() {
-            let line = line?;
-            let trimmed = line.trim();
-
-            if trimmed.is_empty() || trimmed.starts_with('#') {
-                continue;
-            }
-
-            let mut parts = trimmed.split_whitespace();
-            if let Some(conf_option) = parts.next() {
-                match conf_option {
-                    "nameserver" => {
-                        if let Some(address) = parts.next() {
-                            if let Ok(ip_addr) = IpAddr::from_str(address) {
-                                addr_list.push(ip_addr);
-                            }
-                        }
-                    }
-                    _ => continue,
-                }
-            }
-        }
-
-        Ok(addr_list)
     }
 }
