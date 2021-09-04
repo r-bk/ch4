@@ -1,6 +1,6 @@
-pub mod rdata;
-pub mod rrset;
-pub mod zone;
+mod rdata;
+mod rrset;
+mod zone;
 
 //
 // ----------------------------------------------------------------------
@@ -18,13 +18,11 @@ use rsdns::{
 };
 use std::time::{Duration, SystemTime};
 
-#[allow(dead_code)]
 pub struct Format<'a> {
     args: &'a Args,
     cnt: usize,
 }
 
-#[allow(dead_code)]
 impl<'a> Format<'a> {
     pub fn new(args: &'a Args) -> Format<'a> {
         Self { args, cnt: 0 }
