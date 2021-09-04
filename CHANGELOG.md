@@ -4,7 +4,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+
+## [0.4.0] - 2021-09-04
 ### Added
 - support `RFC 8482` for synthetic `HINFO` response on `ANY` query.
   Till now `HINFO` record type was treated as obsolete, and its data wasn't formatted in zone output.
@@ -12,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - starting from this release tag names are prefixed with `v`. Old tags were adjusted accordingly.
 - `UDP` is used by default for all queries, including `ANY`
+- upgrade to `rsdns v0.4.0`
 
 
 ## [0.3.1] - 2021-08-27
