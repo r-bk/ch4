@@ -5,10 +5,8 @@ use crate::{
 use anyhow::Result;
 use chrono::{DateTime, Local};
 use rsdns::{
-    constants::Type,
     message::{reader::MessageReader, Header},
     records::data::RecordData,
-    resolvers::ResolverConfig,
 };
 use std::{
     fmt::Write,
@@ -29,14 +27,12 @@ struct Sizes {
 }
 
 #[allow(dead_code)]
-pub struct Output<'a, 'b, 'c, 'd> {
+pub struct Output<'a, 'b, 'c> {
     args: &'a Args,
     qname: &'b str,
-    qtype: Type,
     msg: &'c [u8],
     ts: SystemTime,
     elapsed: Duration,
-    resolver_conf: &'d ResolverConfig,
     sizes: Sizes,
 }
 
@@ -48,25 +44,21 @@ macro_rules! fmt_size {
     }};
 }
 
-impl<'a, 'b, 'c, 'd> Output<'a, 'b, 'c, 'd> {
+impl<'a, 'b, 'c> Output<'a, 'b, 'c> {
     pub fn new(
         args: &'a Args,
         qname: &'b str,
-        qtype: Type,
         msg: &'c [u8],
         ts: SystemTime,
         elapsed: Duration,
-        resolver_conf: &'d ResolverConfig,
     ) -> Result<Self> {
         let sizes = Self::find_sizes(msg)?;
         Ok(Self {
             args,
             qname,
-            qtype,
             msg,
             ts,
             elapsed,
-            resolver_conf,
             sizes,
         })
     }
@@ -243,7 +235,7 @@ impl<'a, 'b, 'c, 'd> Output<'a, 'b, 'c, 'd> {
         println!(
             "; <<>> ch4 {} <<>> {} {}",
             env!("CH4_VERSION"),
-            self.qtype,
+            self.args.qtype(),
             self.qname,
         );
     }
@@ -251,7 +243,7 @@ impl<'a, 'b, 'c, 'd> Output<'a, 'b, 'c, 'd> {
     fn print_footer(&self) {
         let datetime: DateTime<Local> = DateTime::from(self.ts);
         println!(";; Query time: {:?}", self.elapsed);
-        println!(";; SERVER: {}", self.resolver_conf.nameserver());
+        println!(";; SERVER: {}", self.args.config.nameserver());
         println!(";; WHEN: {}", datetime.to_rfc2822());
         println!(";; MSG SIZE rcvd: {}", self.msg.len());
     }

@@ -61,25 +61,24 @@ where
 pub {{ as }} fn main() -> Result<()> {
     let mut buf = [0u8; u16::MAX as usize];
 
-    let mut args = Args::get()?;
-    let (conf, qtype, qnames) = args.parse()?;
+    let args = Args::get()?;
 
-    let mut resolver = Resolver::new(conf.clone()){{ aw }}?;
+    let mut resolver = Resolver::new(args.config.clone()){{ aw }}?;
 
-    for (index, qname) in qnames.iter().enumerate() {
-        if !args.short || qtype.is_meta_type() {
+    for (index, qname) in args.qnames.iter().enumerate() {
+        if !args.short || args.qtype().is_meta_type() {
             let now = SystemTime::now();
             let size = resolver
-                .query_raw(qname, qtype, Class::In, &mut buf){{ aw }}?;
+                .query_raw(qname, args.qtype(), Class::In, &mut buf){{ aw }}?;
             let elapsed = now.elapsed().expect("time failed");
 
-            let output = Output::new(&args, qname, qtype, &buf[..size], now, elapsed, &conf)?;
+            let output = Output::new(&args, qname, &buf[..size], now, elapsed)?;
             output.print()?;
-            if qnames.len() > 1 && index < qnames.len() - 1 {
+            if args.qnames.len() > 1 && index < args.qnames.len() - 1 {
                 println!();
             }
         } else {
-            query_rrset(&mut resolver, qtype, qname){{ aw }}?;
+            query_rrset(&mut resolver, args.qtype(), qname){{ aw }}?;
         }
     }
 

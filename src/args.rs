@@ -45,11 +45,20 @@ pub struct Args {
     #[structopt(long, help = "Prints build information")]
     info: bool,
 
+    #[structopt(long, help = "Lists system nameservers")]
+    list_nameservers: bool,
+
     #[structopt(skip)]
     pub short: bool,
 
-    #[structopt(long, help = "Lists system nameservers")]
-    list_nameservers: bool,
+    #[structopt(skip)]
+    pub config: ResolverConfig,
+
+    #[structopt(skip)]
+    pub qtype: Option<Type>,
+
+    #[structopt(skip)]
+    pub qnames: Vec<String>,
 
     #[structopt(verbatim_doc_comment)]
     /// Positional arguments ...
@@ -89,7 +98,7 @@ pub struct Args {
 
 impl Args {
     pub fn get() -> Result<Args> {
-        let args = Args::from_args();
+        let mut args = Args::from_args();
 
         if args.info {
             Args::show_info();
@@ -101,7 +110,13 @@ impl Args {
             exit(0);
         }
 
+        args.parse()?;
+
         Ok(args)
+    }
+
+    pub fn qtype(&self) -> Type {
+        self.qtype.unwrap()
     }
 
     fn show_info() {
@@ -135,12 +150,12 @@ impl Args {
         Ok(())
     }
 
-    pub fn parse(&mut self) -> Result<(ResolverConfig, Type, Vec<String>)> {
+    fn parse(&mut self) -> Result<()> {
         let mut protocol_strategy = ProtocolStrategy::Udp;
         let mut nameserver_ip_addr: Option<IpAddr> = None;
         let mut recursion = Recursion::On;
         let mut short = false;
-        let mut free_args = Vec::new();
+        let mut qnames = Vec::new();
         let mut qtype = Type::A;
 
         for a in self.positional.iter() {
@@ -162,7 +177,7 @@ impl Args {
                 s if Type::from_str(&s.to_uppercase()).is_ok() => {
                     qtype = Type::from_str(&s.to_uppercase()).unwrap()
                 }
-                _ => free_args.push(a.clone()),
+                _ => qnames.push(a.clone()),
             }
         }
 
@@ -186,7 +201,7 @@ impl Args {
         };
 
         #[allow(unused_mut)]
-        let mut conf = ResolverConfig::with_nameserver(nameserver)
+        let mut config = ResolverConfig::with_nameserver(nameserver)
             .set_protocol_strategy(protocol_strategy)
             .set_recursion(recursion)
             .set_query_timeout(if self.query_timeout > 0 {
@@ -198,9 +213,13 @@ impl Args {
 
         #[cfg(all(target_os = "linux", feature = "net-tokio", feature = "socket2"))]
         if let Some(ref bd) = self.bind_device {
-            conf = conf.set_bind_device(Some(bd))?;
+            config = config.set_bind_device(Some(bd))?;
         }
 
-        Ok((conf, qtype, free_args))
+        self.config = config;
+        self.qtype = Some(qtype);
+        self.qnames = qnames;
+
+        Ok(())
     }
 }
