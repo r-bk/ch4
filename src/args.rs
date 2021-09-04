@@ -69,14 +69,14 @@ pub struct Args {
     ///                 is considered as query type. Trailing dot can be
     ///                 used to disambiguate a query name (A.).
     ///
-    /// +udp          - sets the Udp protocol strategy.
-    ///                 UDP is preferred for all queries including ANY.
+    /// +udp          - sets the Udp protocol strategy. UDP is used by default.
+    ///                 Truncated responses are retried using TCP.
     ///
     /// +tcp          - sets the Tcp protocol strategy.
     ///                 Only TCP is used for all queries.
     ///
     /// +notcp        - sets NoTcp protocol strategy. Only UDP is used.
-    ///                 Truncated queries are returned as is.
+    ///                 Truncated queries are returned as is, without retry.
     ///
     /// +[no]rec      - enables (disables) recursive query.
     ///                 Queries are recursive by default.
