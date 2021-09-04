@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - starting from this release tag names are prefixed with `v`. Old tags were adjusted accordingly.
+- `UDP` is used by default for all queries, including `ANY`
 
 
 ## [0.3.1] - 2021-08-27
