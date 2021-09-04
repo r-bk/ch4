@@ -1,6 +1,6 @@
 use crate::{args::Args, fmt::{zone::Output, rrset, rdata}};
 use anyhow::{bail, Result};
-use rsdns::{constants::{RClass, RType}, records::data::{self, RData}};
+use rsdns::{constants::{Class, Type}, records::data::{self, RData}};
 use std::time::SystemTime;
 
 {% if async == "true" %}
@@ -27,7 +27,7 @@ use rsdns::resolvers::std::Resolver;
 where
     rdata::RDataFmt: rdata::RDataFormatter<String, D>
 {
-    let rrset = r.query_rrset::<D>(qname, RClass::In){{ aw }}?;
+    let rrset = r.query_rrset::<D>(qname, Class::In){{ aw }}?;
     let mut buf = String::new();
     rrset::fmt_short(&mut buf, &rrset)?;
     print!("{}", buf);
@@ -35,26 +35,26 @@ where
 }
 
 
-{{ as }} fn query_rrset(r: &mut Resolver, qtype: RType, qname: &str) -> Result<()> {
+{{ as }} fn query_rrset(r: &mut Resolver, qtype: Type, qname: &str) -> Result<()> {
     match qtype {
-        RType::A => query_rrset_impl::<data::A>(r, qname){{ aw }},
-        RType::Ns => query_rrset_impl::<data::Ns>(r, qname){{ aw }},
-        RType::Md => query_rrset_impl::<data::Md>(r, qname){{ aw }},
-        RType::Mf => query_rrset_impl::<data::Mf>(r, qname){{ aw }},
-        RType::Cname => query_rrset_impl::<data::Cname>(r, qname){{ aw }},
-        RType::Soa => query_rrset_impl::<data::Soa>(r, qname){{ aw }},
-        RType::Mb => query_rrset_impl::<data::Mb>(r, qname){{ aw }},
-        RType::Mg => query_rrset_impl::<data::Mg>(r, qname){{ aw }},
-        RType::Mr => query_rrset_impl::<data::Mr>(r, qname){{ aw }},
-        RType::Null => query_rrset_impl::<data::Null>(r, qname){{ aw }},
-        RType::Wks => query_rrset_impl::<data::Wks>(r, qname){{ aw }},
-        RType::Ptr => query_rrset_impl::<data::Ptr>(r, qname){{ aw }},
-        RType::Hinfo => query_rrset_impl::<data::Hinfo>(r, qname){{ aw }},
-        RType::Minfo => query_rrset_impl::<data::Minfo>(r, qname){{ aw }},
-        RType::Mx => query_rrset_impl::<data::Mx>(r, qname){{ aw }},
-        RType::Txt => query_rrset_impl::<data::Txt>(r, qname){{ aw }},
-        RType::Aaaa => query_rrset_impl::<data::Aaaa>(r, qname){{ aw }},
-        RType::Axfr | RType::Mailb | RType::Maila | RType::Any => bail!("invalid qtype"),
+        Type::A => query_rrset_impl::<data::A>(r, qname){{ aw }},
+        Type::Ns => query_rrset_impl::<data::Ns>(r, qname){{ aw }},
+        Type::Md => query_rrset_impl::<data::Md>(r, qname){{ aw }},
+        Type::Mf => query_rrset_impl::<data::Mf>(r, qname){{ aw }},
+        Type::Cname => query_rrset_impl::<data::Cname>(r, qname){{ aw }},
+        Type::Soa => query_rrset_impl::<data::Soa>(r, qname){{ aw }},
+        Type::Mb => query_rrset_impl::<data::Mb>(r, qname){{ aw }},
+        Type::Mg => query_rrset_impl::<data::Mg>(r, qname){{ aw }},
+        Type::Mr => query_rrset_impl::<data::Mr>(r, qname){{ aw }},
+        Type::Null => query_rrset_impl::<data::Null>(r, qname){{ aw }},
+        Type::Wks => query_rrset_impl::<data::Wks>(r, qname){{ aw }},
+        Type::Ptr => query_rrset_impl::<data::Ptr>(r, qname){{ aw }},
+        Type::Hinfo => query_rrset_impl::<data::Hinfo>(r, qname){{ aw }},
+        Type::Minfo => query_rrset_impl::<data::Minfo>(r, qname){{ aw }},
+        Type::Mx => query_rrset_impl::<data::Mx>(r, qname){{ aw }},
+        Type::Txt => query_rrset_impl::<data::Txt>(r, qname){{ aw }},
+        Type::Aaaa => query_rrset_impl::<data::Aaaa>(r, qname){{ aw }},
+        Type::Axfr | Type::Mailb | Type::Maila | Type::Any => bail!("invalid qtype"),
     }
 }
 
@@ -70,7 +70,7 @@ pub {{ as }} fn main() -> Result<()> {
         if !args.short || qtype.is_meta_type() {
             let now = SystemTime::now();
             let size = resolver
-                .query_raw(qname, qtype, RClass::In, &mut buf){{ aw }}?;
+                .query_raw(qname, qtype, Class::In, &mut buf){{ aw }}?;
             let elapsed = now.elapsed().expect("time failed");
 
             let output = Output::new(&args, qname, qtype, &buf[..size], now, elapsed, &conf)?;

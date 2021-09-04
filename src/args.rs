@@ -1,6 +1,6 @@
 use anyhow::Result;
 use rsdns::{
-    constants::RType,
+    constants::Type,
     resolvers::{ProtocolStrategy, Recursion, ResolverConfig},
 };
 #[cfg(unix)]
@@ -146,13 +146,13 @@ impl Args {
         Ok(())
     }
 
-    pub fn parse(&mut self) -> Result<(ResolverConfig, RType, Vec<String>)> {
-        let mut protocol_strategy = ProtocolStrategy::Default;
+    pub fn parse(&mut self) -> Result<(ResolverConfig, Type, Vec<String>)> {
+        let mut protocol_strategy = ProtocolStrategy::Udp;
         let mut nameserver_ip_addr: Option<IpAddr> = None;
         let mut recursion = Recursion::On;
         let mut short = false;
         let mut free_args = Vec::new();
-        let mut qtype = RType::A;
+        let mut qtype = Type::A;
 
         for a in self.positional.iter() {
             match a.as_str() {
@@ -170,8 +170,8 @@ impl Args {
                         exit(1);
                     }
                 },
-                s if RType::from_str(&s.to_uppercase()).is_ok() => {
-                    qtype = RType::from_str(&s.to_uppercase()).unwrap()
+                s if Type::from_str(&s.to_uppercase()).is_ok() => {
+                    qtype = Type::from_str(&s.to_uppercase()).unwrap()
                 }
                 _ => free_args.push(a.clone()),
             }
@@ -179,7 +179,7 @@ impl Args {
 
         self.short = short;
 
-        if !qtype.is_data_type() && qtype != RType::Any {
+        if !qtype.is_data_type() && qtype != Type::Any {
             eprintln!("only data-type queries are supported or ANY: {}", qtype);
             exit(1);
         }
@@ -213,7 +213,7 @@ impl Args {
         };
 
         #[allow(unused_mut)]
-        let mut conf = ResolverConfig::new(nameserver)
+        let mut conf = ResolverConfig::with_nameserver(nameserver)
             .set_protocol_strategy(protocol_strategy)
             .set_recursion(recursion)
             .set_query_timeout(if self.query_timeout > 0 {
