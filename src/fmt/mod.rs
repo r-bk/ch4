@@ -1,5 +1,6 @@
 mod rdata;
 mod rrset;
+mod rust;
 mod zone;
 
 //
@@ -38,6 +39,7 @@ impl<'a> Format<'a> {
         match self.args.format {
             OutputFormat::Short => self.short(msg)?,
             OutputFormat::Zone => self.zone(qname, msg, ts, elapsed)?,
+            OutputFormat::Rust => self.rust(qname, msg)?,
         };
         self.cnt += 1;
         Ok(())
@@ -86,5 +88,13 @@ impl<'a> Format<'a> {
             println!();
         }
         zone::Output::new(self.args, qname, msg, ts, elapsed)?.print()
+    }
+
+    fn rust(&self, qname: &str, msg: &[u8]) -> Result<()> {
+        let name = format!("M{}", self.cnt);
+        let mut buf = String::new();
+        rust::fmt(&mut buf, self.args.qtype(), qname, &name, msg)?;
+        println!("{}", buf);
+        Ok(())
     }
 }

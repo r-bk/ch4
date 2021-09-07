@@ -21,6 +21,7 @@ pub mod bi {
 pub enum OutputFormat {
     Zone,
     Short,
+    Rust,
 }
 
 #[derive(Debug, StructOpt)]
@@ -100,6 +101,9 @@ pub struct Args {
     /// +[no]short    - enables (disables) short output.
     ///                 When enabled, only record data is printed,
     ///                 one record on a line.
+    ///
+    /// +[no]rust     - enables (disables) rust output.
+    ///                 When enabled, prints the response as a Rust array.
     pub positional: Vec<String>,
 }
 
@@ -174,6 +178,8 @@ impl Args {
                 "+norec" => recursion = Recursion::Off,
                 "+short" => format = OutputFormat::Short,
                 "+noshort" => format = OutputFormat::Zone,
+                "+rust" => format = OutputFormat::Rust,
+                "+norust" => format = OutputFormat::Zone,
                 s if s.starts_with('@') => match IpAddr::from_str(&s[1..]) {
                     Ok(addr) => nameserver_ip_addr = Some(addr),
                     Err(_) => {
@@ -242,6 +248,7 @@ impl Display for OutputFormat {
         let str = match *self {
             OutputFormat::Zone => "zone",
             OutputFormat::Short => "short",
+            OutputFormat::Rust => "rust",
         };
         f.pad(str)
     }
