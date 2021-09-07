@@ -4,7 +4,6 @@ use rsdns::{
     resolvers::{ProtocolStrategy, Recursion, ResolverConfig},
 };
 use std::{
-    fmt::{Display, Formatter},
     net::{IpAddr, SocketAddr},
     process::exit,
     str::FromStr,
@@ -240,17 +239,6 @@ impl Args {
 impl Default for OutputFormat {
     fn default() -> Self {
         OutputFormat::Zone
-    }
-}
-
-impl Display for OutputFormat {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let str = match *self {
-            OutputFormat::Zone => "zone",
-            OutputFormat::Short => "short",
-            OutputFormat::Rust => "rust",
-        };
-        f.pad(str)
     }
 }
 
