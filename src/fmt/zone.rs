@@ -89,7 +89,7 @@ impl<'a, 'b, 'c> Output<'a, 'b, 'c> {
     }
 
     pub fn print(&self) -> Result<()> {
-        if !self.args.short {
+        if !self.args.format.is_short() {
             self.print_header();
             self.print_message()?;
             self.print_footer();
@@ -163,12 +163,12 @@ impl<'a, 'b, 'c> Output<'a, 'b, 'c> {
 
         for res in mr.records() {
             let (sec, rec) = res?;
-            if !self.args.short && section != Some(sec) {
+            if !self.args.format.is_short() && section != Some(sec) {
                 section = Some(sec);
                 writeln!(&mut output, "\n;; {} SECTION:", sec.to_str().to_uppercase())?;
             }
 
-            if !self.args.short {
+            if !self.args.format.is_short() {
                 write!(
                     &mut output,
                     "{:dn_width$}{:ttl_width$}{:qc_width$}{:qt_width$}",

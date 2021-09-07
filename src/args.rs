@@ -4,6 +4,7 @@ use rsdns::{
     resolvers::{ProtocolStrategy, Recursion, ResolverConfig},
 };
 use std::{
+    fmt::{Display, Formatter},
     net::{IpAddr, SocketAddr},
     process::exit,
     str::FromStr,
@@ -14,6 +15,12 @@ use structopt::StructOpt;
 #[allow(dead_code)]
 pub mod bi {
     include!(concat!(env!("OUT_DIR"), "/built.rs"));
+}
+
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+pub enum OutputFormat {
+    Zone,
+    Short,
 }
 
 #[derive(Debug, StructOpt)]
@@ -49,7 +56,7 @@ pub struct Args {
     list_nameservers: bool,
 
     #[structopt(skip)]
-    pub short: bool,
+    pub format: OutputFormat,
 
     #[structopt(skip)]
     pub config: ResolverConfig,
@@ -154,9 +161,9 @@ impl Args {
         let mut protocol_strategy = ProtocolStrategy::Udp;
         let mut nameserver_ip_addr: Option<IpAddr> = None;
         let mut recursion = Recursion::On;
-        let mut short = false;
         let mut qnames = Vec::new();
         let mut qtype = Type::A;
+        let mut format = OutputFormat::Zone;
 
         for a in self.positional.iter() {
             match a.as_str() {
@@ -165,8 +172,8 @@ impl Args {
                 "+notcp" => protocol_strategy = ProtocolStrategy::NoTcp,
                 "+rec" => recursion = Recursion::On,
                 "+norec" => recursion = Recursion::Off,
-                "+short" => short = true,
-                "+noshort" => short = false,
+                "+short" => format = OutputFormat::Short,
+                "+noshort" => format = OutputFormat::Zone,
                 s if s.starts_with('@') => match IpAddr::from_str(&s[1..]) {
                     Ok(addr) => nameserver_ip_addr = Some(addr),
                     Err(_) => {
@@ -181,7 +188,7 @@ impl Args {
             }
         }
 
-        self.short = short;
+        self.format = format;
 
         if !qtype.is_data_type() && qtype != Type::Any {
             eprintln!("only data-type queries are supported or ANY: {}", qtype);
@@ -221,5 +228,27 @@ impl Args {
         self.qnames = qnames;
 
         Ok(())
+    }
+}
+
+impl Default for OutputFormat {
+    fn default() -> Self {
+        OutputFormat::Zone
+    }
+}
+
+impl Display for OutputFormat {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let str = match *self {
+            OutputFormat::Zone => "zone",
+            OutputFormat::Short => "short",
+        };
+        f.pad(str)
+    }
+}
+
+impl OutputFormat {
+    pub fn is_short(self) -> bool {
+        self == OutputFormat::Short
     }
 }

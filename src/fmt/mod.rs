@@ -6,7 +6,7 @@ mod zone;
 // ----------------------------------------------------------------------
 //
 
-use crate::args::Args;
+use crate::args::{Args, OutputFormat};
 use anyhow::{bail, Result};
 use rdata::{RDataFmt, RDataFormatter};
 use rsdns::{
@@ -35,11 +35,10 @@ impl<'a> Format<'a> {
         ts: SystemTime,
         elapsed: Duration,
     ) -> Result<()> {
-        if self.args.short {
-            self.short(msg)?;
-        } else {
-            self.zone(qname, msg, ts, elapsed)?;
-        }
+        match self.args.format {
+            OutputFormat::Short => self.short(msg)?,
+            OutputFormat::Zone => self.zone(qname, msg, ts, elapsed)?,
+        };
         self.cnt += 1;
         Ok(())
     }
