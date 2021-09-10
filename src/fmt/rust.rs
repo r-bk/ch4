@@ -9,8 +9,17 @@ fn is_ascii_printable(b: &u8) -> bool {
     (0x20..=0x7E).contains(b)
 }
 
-pub fn fmt<W: Write>(w: &mut W, qtype: Type, qname: &str, name: &str, msg: &[u8]) -> Result<()> {
-    writeln!(w, "// {} {}", qtype, qname)?;
+pub fn fmt<W: Write>(
+    w: &mut W,
+    qtype: Option<Type>,
+    qname: Option<&str>,
+    name: &str,
+    msg: &[u8],
+) -> Result<()> {
+    if qtype.is_some() && qname.is_some() {
+        writeln!(w, "// {} {}", qtype.unwrap(), qname.unwrap())?;
+    }
+
     writeln!(w, "const {}: [u8; {}] = [", name, msg.len())?;
 
     let chunks = msg.chunks(CHUNK_LEN);

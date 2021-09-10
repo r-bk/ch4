@@ -31,7 +31,8 @@ impl<'a> Format<'a> {
 
     pub fn add(
         &mut self,
-        qname: &str,
+        qname: Option<&str>,
+        qtype: Option<Type>,
         msg: &[u8],
         ts: Option<SystemTime>,
         elapsed: Option<Duration>,
@@ -39,7 +40,7 @@ impl<'a> Format<'a> {
         match self.args.format {
             OutputFormat::Short => self.short(msg)?,
             OutputFormat::Zone => self.zone(msg, ts, elapsed)?,
-            OutputFormat::Rust => self.rust(qname, msg)?,
+            OutputFormat::Rust => self.rust(qname, qtype, msg)?,
         };
         self.cnt += 1;
         Ok(())
@@ -90,10 +91,10 @@ impl<'a> Format<'a> {
         zone::Output::new(self.args, msg, ts, elapsed)?.print()
     }
 
-    fn rust(&self, qname: &str, msg: &[u8]) -> Result<()> {
+    fn rust(&self, qname: Option<&str>, qtype: Option<Type>, msg: &[u8]) -> Result<()> {
         let name = format!("M{}", self.cnt);
         let mut buf = String::new();
-        rust::fmt(&mut buf, self.args.qtype(), qname, &name, msg)?;
+        rust::fmt(&mut buf, qtype, qname, &name, msg)?;
         println!("{}", buf);
         Ok(())
     }
