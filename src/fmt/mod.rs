@@ -38,7 +38,7 @@ impl<'a> Format<'a> {
     ) -> Result<()> {
         match self.args.format {
             OutputFormat::Short => self.short(msg)?,
-            OutputFormat::Zone => self.zone(qname, msg, ts, elapsed)?,
+            OutputFormat::Zone => self.zone(msg, ts, elapsed)?,
             OutputFormat::Rust => self.rust(qname, msg)?,
         };
         self.cnt += 1;
@@ -83,11 +83,11 @@ impl<'a> Format<'a> {
         Ok(())
     }
 
-    fn zone(&self, qname: &str, msg: &[u8], ts: SystemTime, elapsed: Duration) -> Result<()> {
+    fn zone(&self, msg: &[u8], ts: SystemTime, elapsed: Duration) -> Result<()> {
         if self.cnt > 0 {
             println!();
         }
-        zone::Output::new(self.args, qname, msg, ts, elapsed)?.print()
+        zone::Output::new(self.args, msg, ts, elapsed)?.print()
     }
 
     fn rust(&self, qname: &str, msg: &[u8]) -> Result<()> {

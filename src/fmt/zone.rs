@@ -27,10 +27,9 @@ struct Sizes {
 }
 
 #[allow(dead_code)]
-pub struct Output<'a, 'b, 'c> {
+pub struct Output<'a, 'b> {
     args: &'a Args,
-    qname: &'b str,
-    msg: &'c [u8],
+    msg: &'b [u8],
     ts: SystemTime,
     elapsed: Duration,
     sizes: Sizes,
@@ -44,18 +43,11 @@ macro_rules! fmt_size {
     }};
 }
 
-impl<'a, 'b, 'c> Output<'a, 'b, 'c> {
-    pub fn new(
-        args: &'a Args,
-        qname: &'b str,
-        msg: &'c [u8],
-        ts: SystemTime,
-        elapsed: Duration,
-    ) -> Result<Self> {
+impl<'a, 'b> Output<'a, 'b> {
+    pub fn new(args: &'a Args, msg: &'b [u8], ts: SystemTime, elapsed: Duration) -> Result<Self> {
         let sizes = Self::find_sizes(msg)?;
         Ok(Self {
             args,
-            qname,
             msg,
             ts,
             elapsed,
