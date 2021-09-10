@@ -1,4 +1,4 @@
-# ch4 - DNS Client CLI
+# ch4 - DNS Client Tool
 
 **ch4** is a DNS Client CLI tool built around [rsdns](https://github.com/r-bk/rsdns).
 
