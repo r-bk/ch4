@@ -5,6 +5,56 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.5.0] - 2021-09-10
+### Added
+- add `+rust` option to print DNS responses as Rust arrays.
+
+  So, the following message:
+  ```text
+  $> ch4 A docs.rs
+
+  ; <<>> ch4 0.5.0 git:45400fd <<>> A docs.rs
+  ;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 31431
+  ;; flags: qr rd ra; QUERY: 1, ANSWER: 4, AUTHORITY: 0, ADDITIONAL: 0
+
+  ;; QUESTION SECTION:
+  ;docs.rs.                      IN     A
+
+  ;; ANSWER SECTION:
+  docs.rs.                15     IN     A      13.225.255.26
+  docs.rs.                15     IN     A      13.225.255.46
+  docs.rs.                15     IN     A      13.225.255.38
+  docs.rs.                15     IN     A      13.225.255.105
+
+  ;; Query time: 988.261µs
+  ;; SERVER: 127.0.0.53:53
+  ;; WHEN: Fri, 10 Sep 2021 07:41:11 +0300
+  ;; MSG SIZE rcvd: 89
+  ```
+
+  can be printed as a Rust array the following way
+
+  ```text
+  $> ch4 A docs.rs +rust
+
+  // A docs.rs
+  const M0: [u8; 89] = [
+      0xa1, 0xa7, 0x81, 0x80, 0x00, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00,  // |............|
+      0x04, 0x64, 0x6f, 0x63, 0x73, 0x02, 0x72, 0x73, 0x00, 0x00, 0x01, 0x00,  // |.docs.rs....|
+      0x01, 0xc0, 0x0c, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x0d, 0x00,  // |............|
+      0x04, 0x0d, 0xe1, 0xff, 0x1a, 0xc0, 0x0c, 0x00, 0x01, 0x00, 0x01, 0x00,  // |............|
+      0x00, 0x00, 0x0d, 0x00, 0x04, 0x0d, 0xe1, 0xff, 0x2e, 0xc0, 0x0c, 0x00,  // |............|
+      0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x0d, 0x00, 0x04, 0x0d, 0xe1, 0xff,  // |............|
+      0x26, 0xc0, 0x0c, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x0d, 0x00,  // |&...........|
+      0x04, 0x0d, 0xe1, 0xff, 0x69,                                            // |....i|
+  ];
+  ```
+
+### Changed
+- upgrade to `rsdns v0.5.0`
+- update *ch4* documentation to be aligned with *DNS Client* definition of *rsdns*
+
+
 ## [0.4.0] - 2021-09-04
 ### Added
 - support `RFC 8482` for synthetic `HINFO` response on `ANY` query.
