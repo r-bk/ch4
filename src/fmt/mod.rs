@@ -17,7 +17,10 @@ use rsdns::{
         RecordSet,
     },
 };
-use std::time::{Duration, SystemTime};
+use std::{
+    net::SocketAddr,
+    time::{Duration, SystemTime},
+};
 
 pub struct Format<'a> {
     args: &'a Args,
@@ -34,12 +37,13 @@ impl<'a> Format<'a> {
         qname: Option<&str>,
         qtype: Option<Type>,
         msg: &[u8],
+        ns: Option<SocketAddr>,
         ts: Option<SystemTime>,
         elapsed: Option<Duration>,
     ) -> Result<()> {
         match self.args.format {
             OutputFormat::Short => self.short(msg)?,
-            OutputFormat::Zone => self.zone(msg, ts, elapsed)?,
+            OutputFormat::Zone => self.zone(msg, ns, ts, elapsed)?,
             OutputFormat::Rust => self.rust(qname, qtype, msg)?,
         };
         self.cnt += 1;
@@ -84,11 +88,17 @@ impl<'a> Format<'a> {
         Ok(())
     }
 
-    fn zone(&self, msg: &[u8], ts: Option<SystemTime>, elapsed: Option<Duration>) -> Result<()> {
+    fn zone(
+        &self,
+        msg: &[u8],
+        ns: Option<SocketAddr>,
+        ts: Option<SystemTime>,
+        elapsed: Option<Duration>,
+    ) -> Result<()> {
         if self.cnt > 0 {
             println!();
         }
-        zone::Output::new(self.args, msg, ts, elapsed)?.print()
+        zone::Output::new(self.args, msg, ns, ts, elapsed)?.print()
     }
 
     fn rust(&self, qname: Option<&str>, qtype: Option<Type>, msg: &[u8]) -> Result<()> {

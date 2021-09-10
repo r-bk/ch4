@@ -10,6 +10,7 @@ use rsdns::{
 };
 use std::{
     fmt::Write,
+    net::SocketAddr,
     time::{Duration, SystemTime},
 };
 
@@ -30,6 +31,7 @@ struct Sizes {
 pub struct Output<'a, 'b> {
     args: &'a Args,
     msg: &'b [u8],
+    ns: Option<SocketAddr>,
     ts: Option<SystemTime>,
     elapsed: Option<Duration>,
     sizes: Sizes,
@@ -47,6 +49,7 @@ impl<'a, 'b> Output<'a, 'b> {
     pub fn new(
         args: &'a Args,
         msg: &'b [u8],
+        ns: Option<SocketAddr>,
         ts: Option<SystemTime>,
         elapsed: Option<Duration>,
     ) -> Result<Self> {
@@ -54,6 +57,7 @@ impl<'a, 'b> Output<'a, 'b> {
         Ok(Self {
             args,
             msg,
+            ns,
             ts,
             elapsed,
             sizes,
@@ -240,7 +244,9 @@ impl<'a, 'b> Output<'a, 'b> {
         if let Some(elapsed) = self.elapsed {
             println!(";; Query time: {:?}", elapsed);
         }
-        println!(";; SERVER: {}", self.args.config.nameserver());
+        if let Some(ns) = self.ns {
+            println!(";; SERVER: {}", ns);
+        }
         if let Some(ts) = self.ts {
             let datetime: DateTime<Local> = DateTime::from(ts);
             println!(";; WHEN: {}", datetime.to_rfc2822());
