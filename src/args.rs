@@ -128,6 +128,10 @@ impl Args {
         Ok(args)
     }
 
+    pub fn cmd_line(&self) -> String {
+        self.positional.join(" ")
+    }
+
     pub fn qtype(&self) -> Type {
         self.qtype.unwrap()
     }

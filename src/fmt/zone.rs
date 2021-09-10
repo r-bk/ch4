@@ -233,10 +233,9 @@ impl<'a, 'b, 'c> Output<'a, 'b, 'c> {
 
     fn print_header(&self) {
         println!(
-            "; <<>> ch4 {} <<>> {} {}",
+            "; <<>> ch4 {} <<>> {}",
             env!("CH4_VERSION"),
-            self.args.qtype(),
-            self.qname,
+            self.args.cmd_line()
         );
     }
 
