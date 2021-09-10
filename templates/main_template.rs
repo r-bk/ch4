@@ -8,11 +8,11 @@ use std::time::SystemTime;
 {% set aw = ".await" %}
 cfg_if::cfg_if! {
     if #[cfg(feature = "net-tokio")] {
-        use rsdns::resolvers::tokio::Resolver;
+        use rsdns::clients::tokio::Client;
     } else if #[cfg(feature = "net-async-std")] {
-        use rsdns::resolvers::async_std::Resolver;
+        use rsdns::clients::async_std::Client;
     } else if #[cfg(feature = "net-smol")] {
-        use rsdns::resolvers::smol::Resolver;
+        use rsdns::clients::smol::Client;
     } else {
         compile_error!("One of the async net features must be enabled!!!");
     }
@@ -20,7 +20,7 @@ cfg_if::cfg_if! {
 {% else %}
 {% set as = "" %}
 {% set aw = "" %}
-use rsdns::resolvers::std::Resolver;
+use rsdns::clients::std::Client;
 {% endif %}
 
 
@@ -29,11 +29,11 @@ pub {{ as }} fn main() -> Result<()> {
 
     let args = Args::get()?;
     let mut format = Format::new(&args);
-    let mut resolver = Resolver::new(args.config.clone()){{ aw }}?;
+    let mut client = Client::new(args.config.clone()){{ aw }}?;
 
     for qname in args.qnames.iter() {
         let now = SystemTime::now();
-        let size = resolver
+        let size = client
             .query_raw(qname, args.qtype(), Class::In, &mut buf){{ aw }}?;
         let elapsed = now.elapsed().expect("time failed");
         format.add(qname, &buf[..size], now, elapsed)?;

@@ -1,7 +1,7 @@
 use anyhow::Result;
 use rsdns::{
+    clients::{ClientConfig, ProtocolStrategy, Recursion},
     constants::Type,
-    resolvers::{ProtocolStrategy, Recursion, ResolverConfig},
 };
 use std::{
     net::{IpAddr, SocketAddr},
@@ -24,7 +24,7 @@ pub enum OutputFormat {
 }
 
 #[derive(Debug, StructOpt)]
-#[structopt(about = "DNS Stub Resolver", version = env!("CH4_VERSION"))]
+#[structopt(about = "DNS Client", version = env!("CH4_VERSION"))]
 pub struct Args {
     #[cfg(all(target_os = "linux", feature = "net-tokio", feature = "socket2"))]
     #[structopt(short, long)]
@@ -59,7 +59,7 @@ pub struct Args {
     pub format: OutputFormat,
 
     #[structopt(skip)]
-    pub config: ResolverConfig,
+    pub config: ClientConfig,
 
     #[structopt(skip)]
     pub qtype: Option<Type>,
@@ -213,7 +213,7 @@ impl Args {
         };
 
         #[allow(unused_mut)]
-        let mut config = ResolverConfig::with_nameserver(nameserver)
+        let mut config = ClientConfig::with_nameserver(nameserver)
             .set_protocol_strategy(protocol_strategy)
             .set_recursion(recursion)
             .set_query_timeout(if self.query_timeout > 0 {

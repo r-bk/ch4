@@ -1,13 +1,13 @@
-# ch4 - DNS Stub Resolver CLI
+# ch4 - DNS Client CLI
 
-**ch4** is a DNS Stub Resolver CLI tool built around [rsdns](https://github.com/r-bk/rsdns).
+**ch4** is a DNS Client CLI tool built around [rsdns](https://github.com/r-bk/rsdns).
 
 *ch4's* primary goal is to expose *rsdns's* capabilities in a concise manner.
 It can be used as a simple substitute for [dig](https://en.wikipedia.org/wiki/Dig_(command)),
 with which it tries to be mostly compatible.
 
 *ch4* by default uses the [tokio](https://github.com/tokio-rs/tokio) async runtime and the
-corresponding *rsdns* resolver. It can be built with all resolvers and async runtimes supported
+corresponding *rsdns* client. It can be built with all clients and async runtimes supported
 by *rsdns* via the same set of features `net-tokio`, `net-async-std`, `net-smol` and `net-std`.
 
 [![crates.io][crates-badge]][crates-url]
