@@ -70,6 +70,12 @@ pub struct Args {
     #[structopt(skip)]
     pub nameservers: Vec<String>,
 
+    #[structopt(short = "s", long = "save", help = "save responses to file")]
+    pub save_path: Option<String>,
+
+    #[structopt(short = "r", long = "read", help = "read responses from file")]
+    pub read_path: Option<String>,
+
     #[structopt(verbatim_doc_comment)]
     /// Positional arguments ...
     ///
@@ -129,7 +135,30 @@ impl Args {
     }
 
     pub fn cmd_line(&self) -> String {
-        self.positional.join(" ")
+        let pfx = if self.has_save_path() {
+            format!("--save {} ", self.save_path.as_deref().unwrap())
+        } else if self.has_read_path() {
+            format!("--read {} ", self.read_path.as_deref().unwrap())
+        } else {
+            "".to_string()
+        };
+        format!("{}{}", pfx, self.positional.join(" "))
+    }
+
+    pub fn has_save_path(&self) -> bool {
+        if let Some(ref path) = self.save_path {
+            !path.is_empty()
+        } else {
+            false
+        }
+    }
+
+    pub fn has_read_path(&self) -> bool {
+        if let Some(ref path) = self.read_path {
+            !path.is_empty()
+        } else {
+            false
+        }
     }
 
     pub fn qtype(&self) -> Type {

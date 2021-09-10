@@ -1,13 +1,17 @@
 mod rdata;
 mod rrset;
 mod rust;
+mod save;
 mod zone;
 
 //
 // ----------------------------------------------------------------------
 //
 
-use crate::args::{Args, OutputFormat};
+use crate::{
+    args::{Args, OutputFormat},
+    fmt::save::EncodedMessage,
+};
 use anyhow::{bail, Result};
 use rdata::{RDataFmt, RDataFormatter};
 use rsdns::{
@@ -25,11 +29,16 @@ use std::{
 pub struct Format<'a> {
     args: &'a Args,
     cnt: usize,
+    json: Vec<serde_json::Value>,
 }
 
 impl<'a> Format<'a> {
     pub fn new(args: &'a Args) -> Format<'a> {
-        Self { args, cnt: 0 }
+        Self {
+            args,
+            cnt: 0,
+            json: Vec::new(),
+        }
     }
 
     pub fn add(
@@ -46,11 +55,36 @@ impl<'a> Format<'a> {
             OutputFormat::Zone => self.zone(msg, ns, ts, elapsed)?,
             OutputFormat::Rust => self.rust(qname, qtype, msg)?,
         };
+        if self.args.has_save_path() {
+            self.json
+                .push(EncodedMessage::encode(msg, qname, qtype, ns, ts, elapsed)?);
+        }
         self.cnt += 1;
         Ok(())
     }
 
     pub fn done(&mut self) -> Result<()> {
+        if self.args.has_save_path() && !self.json.is_empty() {
+            return EncodedMessage::save_all(&self.json, self.args.save_path.as_ref().unwrap());
+        }
+        Ok(())
+    }
+
+    pub fn read(&mut self) -> Result<()> {
+        let read_path = self.args.read_path.as_ref().unwrap();
+        let responses = EncodedMessage::load_all(read_path)?;
+
+        for r in responses {
+            self.add(
+                r.qname(),
+                r.qtype(),
+                &r.msg(),
+                r.nameserver(),
+                r.time(),
+                r.elapsed(),
+            )?;
+        }
+
         Ok(())
     }
 

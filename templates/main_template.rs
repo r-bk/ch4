@@ -29,6 +29,10 @@ pub {{ as }} fn main() -> Result<()> {
 
     let args = Args::get()?;
     let mut format = Format::new(&args);
+    if args.has_read_path() {
+        return format.read();
+    }
+
     let mut client = Client::new(args.config.clone()){{ aw }}?;
 
     for qname in args.qnames.iter() {
