@@ -40,8 +40,8 @@ Nameserver address can be specified with the `@` prefix.
 $> ch4 @8.8.8.8 A docs.rs
 ```
 ```text
-; <<>> ch4 0.4.0 git:5818616 <<>> A docs.rs
-;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 14313
+; <<>> ch4 0.5.0 git:ee6dc18 <<>> A docs.rs
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 16190
 ;; flags: qr rd ra; QUERY: 1, ANSWER: 4, AUTHORITY: 0, ADDITIONAL: 0
 
 ;; QUESTION SECTION:
@@ -49,13 +49,13 @@ $> ch4 @8.8.8.8 A docs.rs
 
 ;; ANSWER SECTION:
 docs.rs.                60     IN     A      13.225.255.26
-docs.rs.                60     IN     A      13.225.255.105
-docs.rs.                60     IN     A      13.225.255.38
 docs.rs.                60     IN     A      13.225.255.46
+docs.rs.                60     IN     A      13.225.255.38
+docs.rs.                60     IN     A      13.225.255.105
 
-;; Query time: 73.578911ms
+;; Query time: 82.19972ms
 ;; SERVER: 8.8.8.8:53
-;; WHEN: Sat, 04 Sep 2021 22:48:49 +0300
+;; WHEN: Fri, 10 Sep 2021 09:34:17 +0300
 ;; MSG SIZE rcvd: 89
 ```
 
@@ -65,8 +65,8 @@ When nameserver is not specified, it is auto-detected from the OS configuration.
 $> ch4 crates.io ANY
 ```
 ```text
-; <<>> ch4 0.4.0 git:5818616 <<>> ANY crates.io
-;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 27247
+; <<>> ch4 0.5.0 git:ee6dc18 <<>> ANY crates.io
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 55556
 ;; flags: qr rd ra; QUERY: 1, ANSWER: 12, AUTHORITY: 0, ADDITIONAL: 0
 
 ;; QUESTION SECTION:
@@ -74,21 +74,21 @@ $> ch4 crates.io ANY
 
 ;; ANSWER SECTION:
 crates.io.              300    IN     TXT    "v=spf1 include:mailgun.org ~all"
-crates.io.              300    IN     MX     10 mxb.mailgun.org.
 crates.io.              300    IN     MX     10 mxa.mailgun.org.
+crates.io.              300    IN     MX     10 mxb.mailgun.org.
 crates.io.              900    IN     SOA    ns-1064.awsdns-05.org. awsdns-hostmaster.amazon.com. 1 7200 900 1209600 86400
-crates.io.              60     IN     A      13.225.255.16
-crates.io.              60     IN     A      13.225.255.29
 crates.io.              60     IN     A      13.225.255.54
 crates.io.              60     IN     A      13.225.255.26
-crates.io.              60     IN     NS     ns-1064.awsdns-05.org.
+crates.io.              60     IN     A      13.225.255.16
+crates.io.              60     IN     A      13.225.255.29
 crates.io.              60     IN     NS     ns-817.awsdns-38.net.
-crates.io.              60     IN     NS     ns-1543.awsdns-00.co.uk.
+crates.io.              60     IN     NS     ns-1064.awsdns-05.org.
 crates.io.              60     IN     NS     ns-217.awsdns-27.com.
+crates.io.              60     IN     NS     ns-1543.awsdns-00.co.uk.
 
-;; Query time: 14.007261ms
+;; Query time: 68.044357ms
 ;; SERVER: 127.0.0.53:53
-;; WHEN: Sat, 04 Sep 2021 22:49:46 +0300
+;; WHEN: Fri, 10 Sep 2021 09:34:48 +0300
 ;; MSG SIZE rcvd: 384
 ```
 
@@ -102,8 +102,8 @@ The detailed list of options is shown via `--help` flag.
 $> ch4 --help
 ```
 ```text
-ch4 0.4.0 git:5818616
-DNS Stub Resolver
+ch4 0.5.0 git:ee6dc18
+DNS Client
 
 USAGE:
     ch4 [FLAGS] [OPTIONS] [positional]...
@@ -167,6 +167,9 @@ ARGS:
             +[no]short    - enables (disables) short output.
                             When enabled, only record data is printed,
                             one record on a line.
+
+            +[no]rust     - enables (disables) rust output.
+                            When enabled, prints the response as a Rust array.
 ```
 
 The list of operating system configured nameservers is shown via the `--list-nameservers` flag.
@@ -186,11 +189,11 @@ Build information is shown via `--info` flag.
 C:\> ch4.exe --info
 ```
 ```text
-build time:          Sat, 04 Sep 2021 19:50:19 +0000
-ch4 semver:          0.4.0
+build time:          Fri, 10 Sep 2021 06:26:05 +0000
+ch4 semver:          0.5.0
 git hash:            n/a
 compiler:            rustc
-rustc:               rustc 1.54.0 (a178d0322 2021-07-26)
+rustc:               rustc 1.55.0 (c8dfcfe04 2021-09-06)
 cargo features:      net_tokio, tokio
 cargo profile:       debug
 cargo target:        x86_64-pc-windows-msvc
@@ -199,7 +202,7 @@ pointer width:       64
 build system name:   Windows
 build os version:    Windows Server 2019 Datacenter
 build cpu vendor:    GenuineIntel
-build cpu brand:     Intel(R) Xeon(R) Platinum 8171M CPU @ 2.60GHz
+build cpu brand:     Intel(R) Xeon(R) CPU E5-2673 v4 @ 2.30GHz
 ```
 
 ## Changelog
