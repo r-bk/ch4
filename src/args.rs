@@ -67,6 +67,9 @@ pub struct Args {
     #[structopt(skip)]
     pub qnames: Vec<String>,
 
+    #[structopt(skip)]
+    pub nameservers: Vec<String>,
+
     #[structopt(verbatim_doc_comment)]
     /// Positional arguments ...
     ///
@@ -180,7 +183,10 @@ impl Args {
                 "+rust" => format = OutputFormat::Rust,
                 "+norust" => format = OutputFormat::Zone,
                 s if s.starts_with('@') => match IpAddr::from_str(&s[1..]) {
-                    Ok(addr) => nameserver_ip_addr = Some(addr),
+                    Ok(addr) => {
+                        self.nameservers.push(s[1..].to_string());
+                        nameserver_ip_addr = Some(addr)
+                    }
                     Err(_) => {
                         eprintln!("failed to parse nameserver ip address");
                         exit(1);
