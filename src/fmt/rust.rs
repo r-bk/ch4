@@ -45,10 +45,7 @@ pub fn fmt<W: Write>(w: &mut W, qtype: Type, qname: &str, name: &str, msg: &[u8]
             };
             write!(w, "{}", c)?;
         }
-        // fill the last, possibly shorter, line
-        for _ in 0..(max_chunk_len - len) {
-            write!(w, " ")?;
-        }
+
         writeln!(w, "|")?;
     }
 
