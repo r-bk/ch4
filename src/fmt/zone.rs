@@ -30,8 +30,8 @@ struct Sizes {
 pub struct Output<'a, 'b> {
     args: &'a Args,
     msg: &'b [u8],
-    ts: SystemTime,
-    elapsed: Duration,
+    ts: Option<SystemTime>,
+    elapsed: Option<Duration>,
     sizes: Sizes,
 }
 
@@ -44,7 +44,12 @@ macro_rules! fmt_size {
 }
 
 impl<'a, 'b> Output<'a, 'b> {
-    pub fn new(args: &'a Args, msg: &'b [u8], ts: SystemTime, elapsed: Duration) -> Result<Self> {
+    pub fn new(
+        args: &'a Args,
+        msg: &'b [u8],
+        ts: Option<SystemTime>,
+        elapsed: Option<Duration>,
+    ) -> Result<Self> {
         let sizes = Self::find_sizes(msg)?;
         Ok(Self {
             args,
@@ -232,10 +237,14 @@ impl<'a, 'b> Output<'a, 'b> {
     }
 
     fn print_footer(&self) {
-        let datetime: DateTime<Local> = DateTime::from(self.ts);
-        println!(";; Query time: {:?}", self.elapsed);
+        if let Some(elapsed) = self.elapsed {
+            println!(";; Query time: {:?}", elapsed);
+        }
         println!(";; SERVER: {}", self.args.config.nameserver());
-        println!(";; WHEN: {}", datetime.to_rfc2822());
+        if let Some(ts) = self.ts {
+            let datetime: DateTime<Local> = DateTime::from(ts);
+            println!(";; WHEN: {}", datetime.to_rfc2822());
+        }
         println!(";; MSG SIZE rcvd: {}", self.msg.len());
     }
 }

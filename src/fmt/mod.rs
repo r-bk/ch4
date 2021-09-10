@@ -33,8 +33,8 @@ impl<'a> Format<'a> {
         &mut self,
         qname: &str,
         msg: &[u8],
-        ts: SystemTime,
-        elapsed: Duration,
+        ts: Option<SystemTime>,
+        elapsed: Option<Duration>,
     ) -> Result<()> {
         match self.args.format {
             OutputFormat::Short => self.short(msg)?,
@@ -83,7 +83,7 @@ impl<'a> Format<'a> {
         Ok(())
     }
 
-    fn zone(&self, msg: &[u8], ts: SystemTime, elapsed: Duration) -> Result<()> {
+    fn zone(&self, msg: &[u8], ts: Option<SystemTime>, elapsed: Option<Duration>) -> Result<()> {
         if self.cnt > 0 {
             println!();
         }

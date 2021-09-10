@@ -36,7 +36,7 @@ pub {{ as }} fn main() -> Result<()> {
         let size = client
             .query_raw(qname, args.qtype(), Class::In, &mut buf){{ aw }}?;
         let elapsed = now.elapsed().expect("time failed");
-        format.add(qname, &buf[..size], now, elapsed)?;
+        format.add(qname, &buf[..size], Some(now), Some(elapsed))?;
     }
 
     format.done()?;
