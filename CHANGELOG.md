@@ -5,6 +5,77 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [Unreleased]
+### Added
+- add `-s/--save` option to save the received messages to a file, in addition to formatting them.
+
+  The following command saves the received response to file `crates.io.ch4`:
+  ```shell
+  $> ch4 crates.io --save crates.io.ch4
+  ```
+  ```text
+  ; <<>> ch4 0.5.0 git:3b1ecc4 <<>> --save crates.io.ch4 crates.io
+  ;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 2825
+  ;; flags: qr rd ra; QUERY: 1, ANSWER: 4, AUTHORITY: 0, ADDITIONAL: 0
+
+  ;; QUESTION SECTION:
+  ;crates.io.                    IN     A
+
+  ;; ANSWER SECTION:
+  crates.io.              60     IN     A      13.225.255.29
+  crates.io.              60     IN     A      13.225.255.26
+  crates.io.              60     IN     A      13.225.255.54
+  crates.io.              60     IN     A      13.225.255.16
+
+  ;; Query time: 67.559554ms
+  ;; SERVER: 127.0.0.53:53
+  ;; WHEN: Sat, 11 Sep 2021 10:07:19 +0300
+  ;; MSG SIZE rcvd: 91
+  ```
+
+  the saved file has the following format:
+
+  ```json
+  [
+    {
+      "data": "CwmBgAABAAQAAAAABmNyYXRlcwJpbwAAAQABwAwAAQABAAAAPAAEDeH/HcAMAAEAAQAAADwABA3h/xrADAABAAEAAAA8AAQN4f82wAwAAQABAAAAPAAEDeH/EA==",
+      "duration": {
+        "nanos": 67559554,
+        "secs": 0
+      },
+      "nameserver": "127.0.0.53:53",
+      "qname": "crates.io",
+      "qtype": "A",
+      "timestamp": {
+        "nanos": 347228847,
+        "secs": 1631344039
+      }
+    }
+  ]
+  ```
+
+- add `-r/--read` option to read messages written by `-s/--save`, instead of querying a nameserver.
+
+  Now a message can be saved, and later read several times, possibly with different output formatting.
+
+  ```shell
+  $> ch4 --read crates.io.ch4 +rust
+  ```
+  ```text
+  // A crates.io
+  const M0: [u8; 91] = [
+      0x0b, 0x09, 0x81, 0x80, 0x00, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00,  // |............|
+      0x06, 0x63, 0x72, 0x61, 0x74, 0x65, 0x73, 0x02, 0x69, 0x6f, 0x00, 0x00,  // |.crates.io..|
+      0x01, 0x00, 0x01, 0xc0, 0x0c, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00,  // |............|
+      0x3c, 0x00, 0x04, 0x0d, 0xe1, 0xff, 0x1d, 0xc0, 0x0c, 0x00, 0x01, 0x00,  // |<...........|
+      0x01, 0x00, 0x00, 0x00, 0x3c, 0x00, 0x04, 0x0d, 0xe1, 0xff, 0x1a, 0xc0,  // |....<.......|
+      0x0c, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x3c, 0x00, 0x04, 0x0d,  // |........<...|
+      0xe1, 0xff, 0x36, 0xc0, 0x0c, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00,  // |..6.........|
+      0x3c, 0x00, 0x04, 0x0d, 0xe1, 0xff, 0x10,                                // |<......|
+  ];
+  ```
+
+
 ## [0.5.0] - 2021-09-10
 ### Added
 - add `+rust` option to print DNS responses as Rust arrays.
