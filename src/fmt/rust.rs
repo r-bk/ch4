@@ -25,7 +25,7 @@ pub fn fmt<W: Write>(
     let chunks = msg.chunks(CHUNK_LEN);
     let mut max_chunk_len = 0;
 
-    for chunk in chunks {
+    for (index, chunk) in chunks.enumerate() {
         let len = chunk.len();
         max_chunk_len = max_chunk_len.max(len);
 
@@ -62,7 +62,7 @@ pub fn fmt<W: Write>(
             write!(w, "{}", c)?;
         }
 
-        writeln!(w, "|")?;
+        writeln!(w, "| {}", (index * CHUNK_LEN))?;
     }
 
     writeln!(w, "];")?;
