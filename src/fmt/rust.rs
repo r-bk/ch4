@@ -20,6 +20,7 @@ pub fn fmt<W: Write>(
         writeln!(w, "// {} {}", qtype.unwrap(), qname.unwrap())?;
     }
 
+    writeln!(w, "#[rustfmt::skip]")?;
     writeln!(w, "const {}: [u8; {}] = [", name, msg.len())?;
 
     let chunks = msg.chunks(CHUNK_LEN);
