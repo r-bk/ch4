@@ -29,17 +29,24 @@ pub fn fmt<W: Write>(
         let len = chunk.len();
         max_chunk_len = max_chunk_len.max(len);
 
-        write!(w, "    ")?; // indentation
-
         //
         // chunk bytes as hex literals
         //
-        for b in chunk {
-            write!(w, "{:#04x?}, ", b)?;
+        for (i, b) in chunk.iter().enumerate() {
+            let pfx = if i == 0 { "    " } else { " " };
+            write!(w, "{}{:#04x?},", pfx, b)?;
         }
+
+        //
         // fill the last, possibly shorter, line
-        for _ in 0..(max_chunk_len - len) {
-            write!(w, "      ")?;
+        //
+        if len < max_chunk_len {
+            write!(w, " /*")?;
+            let n_spaces = (max_chunk_len - len) * 6 - 4 - 1;
+            for _ in 0..n_spaces {
+                write!(w, " ")?;
+            }
+            write!(w, "*/")?;
         }
 
         //
