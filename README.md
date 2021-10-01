@@ -46,22 +46,22 @@ Nameserver address can be specified with the `@` prefix.
 $> ch4 @8.8.8.8 A docs.rs
 ```
 ```text
-; <<>> ch4 0.6.0 git:2920672 <<>> @8.8.8.8 A docs.rs
-;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 22978
+; <<>> ch4 0.7.0 git:3db4ab4 <<>> @8.8.8.8 A docs.rs
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 47114
 ;; flags: qr rd ra; QUERY: 1, ANSWER: 4, AUTHORITY: 0, ADDITIONAL: 0
 
 ;; QUESTION SECTION:
 ;docs.rs.                      IN     A
 
 ;; ANSWER SECTION:
-docs.rs.                60     IN     A      13.225.255.26
-docs.rs.                60     IN     A      13.225.255.46
-docs.rs.                60     IN     A      13.225.255.38
-docs.rs.                60     IN     A      13.225.255.105
+docs.rs.                60     IN     A      13.226.0.76
+docs.rs.                60     IN     A      13.226.0.90
+docs.rs.                60     IN     A      13.226.0.123
+docs.rs.                60     IN     A      13.226.0.85
 
-;; Query time: 93.962405ms
+;; Query time: 66.594518ms
 ;; SERVER: 8.8.8.8:53
-;; WHEN: Tue, 14 Sep 2021 23:17:06 +0300
+;; WHEN: Fri, 01 Oct 2021 09:11:40 +0300
 ;; MSG SIZE rcvd: 89
 ```
 
@@ -71,8 +71,8 @@ When nameserver is not specified, it is auto-detected from the OS configuration.
 $> ch4 crates.io ANY
 ```
 ```text
-; <<>> ch4 0.6.0 git:2920672 <<>> ANY crates.io
-;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 11080
+; <<>> ch4 0.7.0 git:3db4ab4 <<>> crates.io ANY
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 46122
 ;; flags: qr rd ra; QUERY: 1, ANSWER: 12, AUTHORITY: 0, ADDITIONAL: 0
 
 ;; QUESTION SECTION:
@@ -83,18 +83,18 @@ crates.io.              300    IN     TXT    "v=spf1 include:mailgun.org ~all"
 crates.io.              300    IN     MX     10 mxa.mailgun.org.
 crates.io.              300    IN     MX     10 mxb.mailgun.org.
 crates.io.              900    IN     SOA    ns-1064.awsdns-05.org. awsdns-hostmaster.amazon.com. 1 7200 900 1209600 86400
-crates.io.              60     IN     A      13.225.255.26
-crates.io.              60     IN     A      13.225.255.29
-crates.io.              60     IN     A      13.225.255.54
-crates.io.              60     IN     A      13.225.255.16
-crates.io.              60     IN     NS     ns-817.awsdns-38.net.
-crates.io.              60     IN     NS     ns-217.awsdns-27.com.
-crates.io.              60     IN     NS     ns-1064.awsdns-05.org.
+crates.io.              60     IN     A      13.226.0.23
+crates.io.              60     IN     A      13.226.0.61
+crates.io.              60     IN     A      13.226.0.33
+crates.io.              60     IN     A      13.226.0.108
 crates.io.              60     IN     NS     ns-1543.awsdns-00.co.uk.
+crates.io.              60     IN     NS     ns-1064.awsdns-05.org.
+crates.io.              60     IN     NS     ns-217.awsdns-27.com.
+crates.io.              60     IN     NS     ns-817.awsdns-38.net.
 
-;; Query time: 68.23977ms
+;; Query time: 15.904685ms
 ;; SERVER: 127.0.0.53:53
-;; WHEN: Tue, 14 Sep 2021 23:17:50 +0300
+;; WHEN: Fri, 01 Oct 2021 09:12:24 +0300
 ;; MSG SIZE rcvd: 384
 ```
 
@@ -108,7 +108,7 @@ The detailed list of options is shown via `--help` flag.
 $> ch4 --help
 ```
 ```text
-ch4 0.6.0 git:2920672
+ch4 0.7.0 git:3db4ab4
 DNS Client
 
 USAGE:
@@ -182,6 +182,10 @@ ARGS:
 
             +[no]rust     - enables (disables) rust output.
                             When enabled, prints the response as a Rust array.
+
+            +[no]gen      - forces generic output (RFC 3597 s. 5) on all record
+                            types. By default, only unknown record types are
+                            formatted this way.
 ```
 
 The list of operating system configured nameservers is shown via the `--list-nameservers` flag.
@@ -201,12 +205,12 @@ Build information is shown via `--info` flag.
 C:\> ch4.exe --info
 ```
 ```text
-build time:          Tue, 14 Sep 2021 20:23:15 +0000
-ch4 semver:          0.6.0
+build time:          Fri, 01 Oct 2021 06:08:38 +0000
+ch4 semver:          0.7.0
 git hash:            n/a
 compiler:            rustc
-rustc:               rustc 1.54.0 (a178d0322 2021-07-26)
-cargo features:      default, net_tokio, tokio
+rustc:               rustc 1.55.0 (c8dfcfe04 2021-09-06)
+cargo features:      net_tokio, tokio
 cargo profile:       debug
 cargo target:        x86_64-pc-windows-msvc
 endianness:          little
@@ -214,7 +218,7 @@ pointer width:       64
 build system name:   Windows
 build os version:    Windows Server 2019 Datacenter
 build cpu vendor:    GenuineIntel
-build cpu brand:     Intel(R) Xeon(R) Platinum 8272CL CPU @ 2.60GHz
+build cpu brand:     Intel(R) Xeon(R) CPU E5-2673 v4 @ 2.30GHz
 ```
 
 ## Changelog
