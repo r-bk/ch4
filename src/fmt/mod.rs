@@ -52,7 +52,7 @@ impl<'a> Format<'a> {
     ) -> Result<()> {
         match self.args.format {
             OutputFormat::Short => self.short(msg)?,
-            OutputFormat::Zone => self.zone(msg, ns, ts, elapsed)?,
+            OutputFormat::Zone | OutputFormat::ZoneRfc3597 => self.zone(msg, ns, ts, elapsed)?,
             OutputFormat::Rust => self.rust(qname, qtype, msg)?,
         };
         if self.args.has_save_path() {

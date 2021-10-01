@@ -5,10 +5,13 @@ use crate::{
 use anyhow::Result;
 use chrono::{DateTime, Local};
 use rsdns::{
+    constants::Type,
     message::{reader::MessageReader, Header},
-    records::data::RecordData,
+    names::InlineName,
+    records::data::*,
 };
 use std::{
+    convert::TryFrom,
     fmt::Write,
     net::SocketAddr,
     time::{Duration, SystemTime},
@@ -25,6 +28,7 @@ struct Sizes {
     ttl: usize,
     rclass: usize,
     rtype: usize,
+    rdlen: usize,
 }
 
 #[allow(dead_code)]
@@ -68,17 +72,21 @@ impl<'a, 'b> Output<'a, 'b> {
         let mut sizes = Sizes::default();
         let mut buf = String::new();
         let mr = MessageReader::new(msg)?;
+        let mut rr = mr.records_reader();
         let q = mr.question()?;
         sizes.name = sizes.name.max(q.qname.len());
         sizes.rclass = sizes.rclass.max(fmt_size!(q.qclass, buf));
         sizes.rtype = sizes.rtype.max(fmt_size!(q.qtype, buf));
 
-        for res in mr.records() {
-            let (_, rec) = res?;
-            sizes.name = sizes.name.max(rec.name.len());
-            sizes.rclass = sizes.rclass.max(fmt_size!(rec.rclass, buf));
-            sizes.rtype = sizes.rtype.max(fmt_size!(rec.rtype, buf));
-            sizes.ttl = sizes.ttl.max(fmt_size!(rec.ttl, buf));
+        while rr.has_records() {
+            let header = rr.header::<InlineName>()?;
+            rr.skip_data(header.marker())?;
+
+            sizes.name = sizes.name.max(header.name().len());
+            sizes.rclass = sizes.rclass.max(fmt_size!(header.rclass(), buf));
+            sizes.rtype = sizes.rtype.max(fmt_size!(header.rtype(), buf));
+            sizes.ttl = sizes.ttl.max(fmt_size!(header.ttl(), buf));
+            sizes.rdlen = sizes.rdlen.max(fmt_size!(header.rdlen(), buf));
         }
 
         sizes.name = DOMAIN_NAME_WIDTH.max(sizes.name + 2);
@@ -162,8 +170,12 @@ impl<'a, 'b> Output<'a, 'b> {
         let mut output = String::new();
         let mut section = None;
 
-        for res in mr.records() {
-            let (sec, rec) = res?;
+        let mut rr = mr.records_reader();
+
+        while rr.has_records() {
+            let header = rr.header::<InlineName>()?;
+            let sec = header.section();
+
             if !self.args.format.is_short() && section != Some(sec) {
                 section = Some(sec);
                 writeln!(&mut output, "\n;; {} SECTION:", sec.to_str().to_uppercase())?;
@@ -173,10 +185,10 @@ impl<'a, 'b> Output<'a, 'b> {
                 write!(
                     &mut output,
                     "{:dn_width$}{:ttl_width$}{:qc_width$}{:qt_width$}",
-                    rec.name,
-                    rec.ttl.to_string(),
-                    rec.rclass,
-                    rec.rtype,
+                    header.name(),
+                    header.ttl().to_string(),
+                    header.rclass(),
+                    header.rtype(),
                     dn_width = self.sizes.name,
                     ttl_width = self.sizes.ttl,
                     qc_width = self.sizes.rclass,
@@ -184,24 +196,67 @@ impl<'a, 'b> Output<'a, 'b> {
                 )?;
             }
 
-            match rec.rdata {
-                RecordData::A(ref a) => RDataFmt::fmt(&mut output, a)?,
-                RecordData::Aaaa(ref aaaa) => RDataFmt::fmt(&mut output, aaaa)?,
-                RecordData::Cname(ref cname) => RDataFmt::fmt(&mut output, cname)?,
-                RecordData::Ns(ref ns) => RDataFmt::fmt(&mut output, ns)?,
-                RecordData::Soa(ref soa) => RDataFmt::fmt(&mut output, soa)?,
-                RecordData::Ptr(ref ptr) => RDataFmt::fmt(&mut output, ptr)?,
-                RecordData::Mx(ref mx) => RDataFmt::fmt(&mut output, mx)?,
-                RecordData::Txt(ref txt) => RDataFmt::fmt(&mut output, txt)?,
-                RecordData::Hinfo(ref hinfo) => RDataFmt::fmt(&mut output, hinfo)?,
-                RecordData::Wks(_)
-                | RecordData::Null(_)
-                | RecordData::Mr(_)
-                | RecordData::Mg(_)
-                | RecordData::Mb(_)
-                | RecordData::Mf(_)
-                | RecordData::Minfo(_)
-                | RecordData::Md(_) => write!(&mut output, "OBSOLETE RTYPE")?,
+            let rtype = if self.args.format.is_rfc3597() {
+                Type::Any // use a type that forces RFC 3597 below
+            } else {
+                match Type::try_from(header.rtype()) {
+                    Ok(rt) => rt,
+                    _ => Type::Any, // use a type that forces RFC 3597 below
+                }
+            };
+
+            match rtype {
+                Type::A => {
+                    let a = rr.data::<A>(header.marker())?;
+                    RDataFmt::fmt(&mut output, &a)?;
+                }
+                Type::Aaaa => {
+                    let aaaa = rr.data::<Aaaa>(header.marker())?;
+                    RDataFmt::fmt(&mut output, &aaaa)?;
+                }
+                Type::Cname => {
+                    let cname = rr.data::<Cname>(header.marker())?;
+                    RDataFmt::fmt(&mut output, &cname)?;
+                }
+                Type::Ns => {
+                    let ns = rr.data::<Ns>(header.marker())?;
+                    RDataFmt::fmt(&mut output, &ns)?;
+                }
+                Type::Soa => {
+                    let soa = rr.data::<Soa>(header.marker())?;
+                    RDataFmt::fmt(&mut output, &soa)?;
+                }
+                Type::Ptr => {
+                    let ptr = rr.data::<Ptr>(header.marker())?;
+                    RDataFmt::fmt(&mut output, &ptr)?;
+                }
+                Type::Mx => {
+                    let mx = rr.data::<Mx>(header.marker())?;
+                    RDataFmt::fmt(&mut output, &mx)?;
+                }
+                Type::Txt => {
+                    let txt = rr.data::<Txt>(header.marker())?;
+                    RDataFmt::fmt(&mut output, &txt)?;
+                }
+                Type::Hinfo => {
+                    let hinfo = rr.data::<Hinfo>(header.marker())?;
+                    RDataFmt::fmt(&mut output, &hinfo)?;
+                }
+                Type::Wks
+                | Type::Null
+                | Type::Mr
+                | Type::Mg
+                | Type::Mb
+                | Type::Mf
+                | Type::Minfo
+                | Type::Md
+                | Type::Axfr
+                | Type::Maila
+                | Type::Mailb
+                | Type::Any => {
+                    let bytes = rr.data_bytes(header.marker())?;
+                    write!(&mut output, "{}", self.format_rfc_3597(bytes)?)?;
+                }
             }
 
             writeln!(&mut output)?;
@@ -230,6 +285,26 @@ impl<'a, 'b> Output<'a, 'b> {
         }
 
         flags_str.join(" ")
+    }
+
+    fn format_rfc_3597(&self, d: &[u8]) -> Result<String> {
+        let mut output = String::new();
+
+        write!(
+            &mut output,
+            "\\# {:<rdlen$}",
+            d.len(),
+            rdlen = self.sizes.rdlen
+        )?;
+
+        for chunk in d.chunks(4) {
+            write!(&mut output, " ")?;
+            for b in chunk {
+                write!(&mut output, "{:02x}", *b)?;
+            }
+        }
+
+        Ok(output)
     }
 
     fn print_header(&self) {

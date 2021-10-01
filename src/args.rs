@@ -19,6 +19,7 @@ pub mod bi {
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum OutputFormat {
     Zone,
+    ZoneRfc3597,
     Short,
     Rust,
 }
@@ -112,6 +113,10 @@ pub struct Args {
     ///
     /// +[no]rust     - enables (disables) rust output.
     ///                 When enabled, prints the response as a Rust array.
+    ///
+    /// +[no]gen      - forces generic output (RFC 3597 s. 5) on all record
+    ///                 types. By default, only unknown record types are
+    ///                 formatted this way.
     pub positional: Vec<String>,
 }
 
@@ -215,6 +220,8 @@ impl Args {
                 "+noshort" => format = OutputFormat::Zone,
                 "+rust" => format = OutputFormat::Rust,
                 "+norust" => format = OutputFormat::Zone,
+                "+gen" => format = OutputFormat::ZoneRfc3597,
+                "+nogen" => format = OutputFormat::Zone,
                 s if s.starts_with('@') => match IpAddr::from_str(&s[1..]) {
                     Ok(addr) => {
                         self.nameservers.push(s[1..].to_string());
@@ -284,5 +291,9 @@ impl Default for OutputFormat {
 impl OutputFormat {
     pub fn is_short(self) -> bool {
         self == OutputFormat::Short
+    }
+
+    pub fn is_rfc3597(self) -> bool {
+        self == OutputFormat::ZoneRfc3597
     }
 }

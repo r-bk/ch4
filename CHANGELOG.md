@@ -27,9 +27,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
       0x04, 0x97, 0x65, 0x80, 0x51, /*                                     */ // |..e.Q| 84
   ];
   ```
+- add `+gen` output format. The flag forces `RFC 3597` generic output on all record types,
+  known and unknown alike.
+  ```text
+  ; <<>> ch4 0.6.0 git:096f3be <<>> crates.io +gen
+  ;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 9844
+  ;; flags: qr rd ra; QUERY: 1, ANSWER: 4, AUTHORITY: 0, ADDITIONAL: 0
+
+  ;; QUESTION SECTION:
+  ;crates.io.                    IN     A
+
+  ;; ANSWER SECTION:
+  crates.io.              60     IN     A      \# 4 0de2003d
+  crates.io.              60     IN     A      \# 4 0de20017
+  crates.io.              60     IN     A      \# 4 0de2006c
+  crates.io.              60     IN     A      \# 4 0de20021
+
+  ;; Query time: 64.822579ms
+  ;; SERVER: 127.0.0.53:53
+  ;; WHEN: Fri, 01 Oct 2021 00:03:10 +0300
+  ;; MSG SIZE rcvd: 91
+  ```
 
 ### Changed
 - upgrade to `rsdns v0.6.0`
+- support [RFC 3597 section 5](https://www.rfc-editor.org/rfc/rfc3597.html#section-5)
+  for unknown record types. Unknown record data is formatted now as an array of bytes.
+  Moreover, all obsolete record types are formatted this way as well. Previously, unknown record
+  types were silently ignored. See `+gen` formatting option above for an output example.
 
 
 ## [0.6.0] - 2021-09-14

@@ -19,7 +19,13 @@ by *rsdns* via the same set of features `net-tokio`, `net-async-std`, `net-smol`
 
 1. Built on Linux, Windows, and MacOS
 2. Auto-detection of operating system's default nameserver
-3. Supported RFCs are listed in [rsdns](https://github.com/r-bk/rsdns)
+
+
+## Supported RFCs
+- *rsdns* [supported RFCs](https://github.com/r-bk/rsdns#supported-rfcs)
+- [RFC 3597] - text representation of unknown record types
+
+[RFC 3597]: https://www.rfc-editor.org/rfc/rfc3597.html#section-5
 
 
 ## Installation
