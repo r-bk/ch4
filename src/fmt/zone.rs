@@ -6,7 +6,7 @@ use anyhow::Result;
 use chrono::{DateTime, Local};
 use rsdns::{
     constants::Type,
-    message::{reader::MessageReader, Header},
+    message::{reader::MessageIterator, Header},
     names::InlineName,
     records::data::*,
 };
@@ -71,9 +71,9 @@ impl<'a, 'b> Output<'a, 'b> {
     fn find_sizes(msg: &[u8]) -> Result<Sizes> {
         let mut sizes = Sizes::default();
         let mut buf = String::new();
-        let mr = MessageReader::new(msg)?;
-        let mut rr = mr.records_reader();
-        let q = mr.question()?;
+        let mi = MessageIterator::new(msg)?;
+        let mut rr = mi.records_reader();
+        let q = mi.question()?;
         sizes.name = sizes.name.max(q.qname.len());
         sizes.rclass = sizes.rclass.max(fmt_size!(q.qclass, buf));
         sizes.rtype = sizes.rtype.max(fmt_size!(q.qtype, buf));
@@ -109,16 +109,16 @@ impl<'a, 'b> Output<'a, 'b> {
     }
 
     fn print_message(&self) -> Result<()> {
-        let mr = MessageReader::new(self.msg)?;
-        println!("{}", Self::format_response_header(mr.header())?);
-        println!("{}", self.format_question(&mr)?);
-        println!("{}", self.format_records(&mr)?);
+        let mi = MessageIterator::new(self.msg)?;
+        println!("{}", Self::format_response_header(mi.header())?);
+        println!("{}", self.format_question(&mi)?);
+        println!("{}", self.format_records(&mi)?);
         Ok(())
     }
 
     fn print_records_short(&self) -> Result<()> {
-        let mr = MessageReader::new(self.msg)?;
-        print!("{}", self.format_records(&mr)?);
+        let mi = MessageIterator::new(self.msg)?;
+        print!("{}", self.format_records(&mi)?);
         Ok(())
     }
 
@@ -143,12 +143,12 @@ impl<'a, 'b> Output<'a, 'b> {
         Ok(output)
     }
 
-    fn format_question(&self, mr: &MessageReader) -> Result<String> {
+    fn format_question(&self, mi: &MessageIterator) -> Result<String> {
         let mut output = String::new();
         writeln!(&mut output, ";; QUESTION SECTION:")?;
 
         #[allow(clippy::for_loops_over_fallibles)]
-        for q in mr.questions() {
+        for q in mi.questions() {
             let q = q?;
             write!(
                 &mut output,
@@ -166,11 +166,11 @@ impl<'a, 'b> Output<'a, 'b> {
         Ok(output)
     }
 
-    fn format_records(&self, mr: &MessageReader) -> Result<String> {
+    fn format_records(&self, mi: &MessageIterator) -> Result<String> {
         let mut output = String::new();
         let mut section = None;
 
-        let mut rr = mr.records_reader();
+        let mut rr = mi.records_reader();
 
         while rr.has_records() {
             let header = rr.header::<InlineName>()?;
