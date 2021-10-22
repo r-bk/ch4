@@ -6,7 +6,7 @@ use anyhow::Result;
 use chrono::{DateTime, Local};
 use rsdns::{
     constants::Type,
-    message::{reader::MessageIterator, Header},
+    message::{reader::MessageReader, Header},
     names::InlineName,
     records::data::*,
 };
@@ -71,16 +71,16 @@ impl<'a, 'b> Output<'a, 'b> {
     fn find_sizes(msg: &[u8]) -> Result<Sizes> {
         let mut sizes = Sizes::default();
         let mut buf = String::new();
-        let mi = MessageIterator::new(msg)?;
-        let mut rr = mi.records_reader();
-        let q = mi.question()?;
+        let mut mr = MessageReader::new(msg)?;
+        mr.header()?;
+        let q = mr.the_question()?;
         sizes.name = sizes.name.max(q.qname.len());
         sizes.rclass = sizes.rclass.max(fmt_size!(q.qclass, buf));
         sizes.rtype = sizes.rtype.max(fmt_size!(q.qtype, buf));
 
-        while rr.has_records() {
-            let header = rr.header::<InlineName>()?;
-            rr.skip_data(header.marker())?;
+        while mr.has_records() {
+            let header = mr.record_header::<InlineName>()?;
+            mr.skip_record_data(header.marker())?;
 
             sizes.name = sizes.name.max(header.name().len());
             sizes.rclass = sizes.rclass.max(fmt_size!(header.rclass(), buf));
@@ -109,16 +109,18 @@ impl<'a, 'b> Output<'a, 'b> {
     }
 
     fn print_message(&self) -> Result<()> {
-        let mi = MessageIterator::new(self.msg)?;
-        println!("{}", Self::format_response_header(mi.header())?);
-        println!("{}", self.format_question(&mi)?);
-        println!("{}", self.format_records(&mi)?);
+        let mut mr = MessageReader::new(self.msg)?;
+        let header = mr.header()?;
+        println!("{}", Self::format_response_header(&header)?);
+        println!("{}", self.format_question(&mut mr)?);
+        println!("{}", self.format_records(&mut mr)?);
         Ok(())
     }
 
     fn print_records_short(&self) -> Result<()> {
-        let mi = MessageIterator::new(self.msg)?;
-        print!("{}", self.format_records(&mi)?);
+        let mut mr = MessageReader::new(self.msg)?;
+        mr.header()?;
+        print!("{}", self.format_records(&mut mr)?);
         Ok(())
     }
 
@@ -143,13 +145,12 @@ impl<'a, 'b> Output<'a, 'b> {
         Ok(output)
     }
 
-    fn format_question(&self, mi: &MessageIterator) -> Result<String> {
+    fn format_question(&self, mr: &mut MessageReader) -> Result<String> {
         let mut output = String::new();
         writeln!(&mut output, ";; QUESTION SECTION:")?;
 
-        #[allow(clippy::for_loops_over_fallibles)]
-        for q in mi.questions() {
-            let q = q?;
+        while mr.has_questions() {
+            let q = mr.question()?;
             write!(
                 &mut output,
                 ";{:dn_width$}{:ttl_width$}{:qc_width$}{:qt_width$}",
@@ -166,14 +167,12 @@ impl<'a, 'b> Output<'a, 'b> {
         Ok(output)
     }
 
-    fn format_records(&self, mi: &MessageIterator) -> Result<String> {
+    fn format_records(&self, mr: &mut MessageReader) -> Result<String> {
         let mut output = String::new();
         let mut section = None;
 
-        let mut rr = mi.records_reader();
-
-        while rr.has_records() {
-            let header = rr.header::<InlineName>()?;
+        while mr.has_records() {
+            let header = mr.record_header::<InlineName>()?;
             let sec = header.section();
 
             if !self.args.format.is_short() && section != Some(sec) {
@@ -207,39 +206,39 @@ impl<'a, 'b> Output<'a, 'b> {
 
             match rtype {
                 Type::A => {
-                    let a = rr.data::<A>(header.marker())?;
+                    let a = mr.record_data::<A>(header.marker())?;
                     RDataFmt::fmt(&mut output, &a)?;
                 }
                 Type::Aaaa => {
-                    let aaaa = rr.data::<Aaaa>(header.marker())?;
+                    let aaaa = mr.record_data::<Aaaa>(header.marker())?;
                     RDataFmt::fmt(&mut output, &aaaa)?;
                 }
                 Type::Cname => {
-                    let cname = rr.data::<Cname>(header.marker())?;
+                    let cname = mr.record_data::<Cname>(header.marker())?;
                     RDataFmt::fmt(&mut output, &cname)?;
                 }
                 Type::Ns => {
-                    let ns = rr.data::<Ns>(header.marker())?;
+                    let ns = mr.record_data::<Ns>(header.marker())?;
                     RDataFmt::fmt(&mut output, &ns)?;
                 }
                 Type::Soa => {
-                    let soa = rr.data::<Soa>(header.marker())?;
+                    let soa = mr.record_data::<Soa>(header.marker())?;
                     RDataFmt::fmt(&mut output, &soa)?;
                 }
                 Type::Ptr => {
-                    let ptr = rr.data::<Ptr>(header.marker())?;
+                    let ptr = mr.record_data::<Ptr>(header.marker())?;
                     RDataFmt::fmt(&mut output, &ptr)?;
                 }
                 Type::Mx => {
-                    let mx = rr.data::<Mx>(header.marker())?;
+                    let mx = mr.record_data::<Mx>(header.marker())?;
                     RDataFmt::fmt(&mut output, &mx)?;
                 }
                 Type::Txt => {
-                    let txt = rr.data::<Txt>(header.marker())?;
+                    let txt = mr.record_data::<Txt>(header.marker())?;
                     RDataFmt::fmt(&mut output, &txt)?;
                 }
                 Type::Hinfo => {
-                    let hinfo = rr.data::<Hinfo>(header.marker())?;
+                    let hinfo = mr.record_data::<Hinfo>(header.marker())?;
                     RDataFmt::fmt(&mut output, &hinfo)?;
                 }
                 Type::Wks
@@ -254,7 +253,7 @@ impl<'a, 'b> Output<'a, 'b> {
                 | Type::Maila
                 | Type::Mailb
                 | Type::Any => {
-                    let bytes = rr.data_bytes(header.marker())?;
+                    let bytes = mr.record_data_bytes(header.marker())?;
                     write!(&mut output, "{}", self.format_rfc_3597(bytes)?)?;
                 }
             }
