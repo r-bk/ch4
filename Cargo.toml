@@ -2,13 +2,12 @@
 name = "ch4"
 version = "0.7.0"
 authors = ["Rafael Buchbinder <rafi@rbk.io>"]
-edition = "2018"
+edition = "2021"
 description = "DNS Client Tool"
 license = "MIT OR Apache-2.0"
 keywords = ["dns", "dig", "resolver"]
 categories = ["command-line-utilities"]
 repository = "https://github.com/r-bk/ch4"
-resolver = "2"
 
 [features]
 default = ["net-tokio"]
