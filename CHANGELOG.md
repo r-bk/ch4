@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.8.0] - 2021-10-30
+### Changed
+- move to `Rust 2021`. The minimum supported rust version was raised to `1.56` (`MSRV 1.56`)
+- move to `rsdns 0.8.0`
+
+
 ## [0.7.0] - 2021-10-01
 ### Added
 - add `+gen` output format. The flag forces `RFC 3597` generic output on all record types,
