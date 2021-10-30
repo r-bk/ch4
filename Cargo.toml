@@ -8,6 +8,7 @@ license = "MIT OR Apache-2.0"
 keywords = ["dns", "dig", "resolver"]
 categories = ["command-line-utilities"]
 repository = "https://github.com/r-bk/ch4"
+exclude = [".git*", "Makefile.toml"]
 
 [features]
 default = ["net-tokio"]
