@@ -3,13 +3,6 @@ use sysinfo::{ProcessorExt, RefreshKind, System, SystemExt};
 use tera::{Context, Tera};
 
 fn main() {
-    #[cfg(windows)]
-    windows::build!(
-        Windows::Win32::NetworkManagement::IpHelper::*,
-        Windows::Win32::System::Diagnostics::Debug::*,
-        Windows::Win32::Networking::WinSock::*,
-    );
-
     built::write_built_file().expect("built failed");
     gen_ch4_version();
     export_sysinfo();

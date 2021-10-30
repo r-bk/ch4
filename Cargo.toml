@@ -35,13 +35,16 @@ tokio = { version = "1", optional = true, features = ["rt", "macros"]}
 async-std = { version = "1", optional = true, features = ["attributes"] }
 smol = { version = "1", optional = true }
 
-[target.'cfg(windows)'.dependencies]
-windows = "~0.21.0"
+[target.'cfg(windows)'.dependencies.windows]
+version = "~0.23.0"
+features = [
+    "Win32_Foundation",
+    "Win32_NetworkManagement_IpHelper",
+    "Win32_Networking_WinSock",
+    "Win32_System_SystemServices",
+]
 
 [build-dependencies]
 built = { version = "~0.5.1", features = ["git2", "chrono"] }
 tera = { version = "~1.12.1", default-features = false }
 sysinfo = { version = "~0.20.0" }
-
-[target.'cfg(windows)'.build-dependencies]
-windows = "~0.21.0"

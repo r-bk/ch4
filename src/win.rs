@@ -1,14 +1,13 @@
 use anyhow::{bail, Result};
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 
-mod bindings {
-    windows::include_bindings!();
-}
-
-use bindings::Windows::Win32::{
-    NetworkManagement::IpHelper::*,
+use windows::Win32::{
+    Foundation::{ERROR_BUFFER_OVERFLOW, NO_ERROR, WIN32_ERROR},
+    NetworkManagement::IpHelper::{
+        GetAdaptersAddresses, ADDRESS_FAMILY, AF_INET, AF_INET6, AF_UNSPEC,
+        GAA_FLAG_INCLUDE_TUNNEL_BINDINGORDER, IP_ADAPTER_ADDRESSES_LH,
+    },
     Networking::WinSock::{SOCKADDR_IN, SOCKADDR_IN6},
-    System::Diagnostics::Debug::*,
 };
 
 pub fn get_dns_servers() -> Result<Vec<IpAddr>> {
