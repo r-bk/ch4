@@ -289,10 +289,6 @@ impl Default for OutputFormat {
 }
 
 impl OutputFormat {
-    pub fn is_short(self) -> bool {
-        self == OutputFormat::Short
-    }
-
     pub fn is_rfc3597(self) -> bool {
         self == OutputFormat::ZoneRfc3597
     }

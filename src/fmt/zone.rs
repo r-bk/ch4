@@ -98,13 +98,9 @@ impl<'a, 'b> Output<'a, 'b> {
     }
 
     pub fn print(&self) -> Result<()> {
-        if !self.args.format.is_short() {
-            self.print_header();
-            self.print_message()?;
-            self.print_footer();
-        } else {
-            self.print_records_short()?;
-        }
+        self.print_header();
+        self.print_message()?;
+        self.print_footer();
         Ok(())
     }
 
@@ -114,13 +110,6 @@ impl<'a, 'b> Output<'a, 'b> {
         println!("{}", Self::format_response_header(&header)?);
         println!("{}", self.format_question(&mut mr)?);
         println!("{}", self.format_records(&mut mr)?);
-        Ok(())
-    }
-
-    fn print_records_short(&self) -> Result<()> {
-        let mut mr = MessageReader::new(self.msg)?;
-        mr.header()?;
-        print!("{}", self.format_records(&mut mr)?);
         Ok(())
     }
 
@@ -175,25 +164,23 @@ impl<'a, 'b> Output<'a, 'b> {
             let header = mr.record_header::<InlineName>()?;
             let sec = header.section();
 
-            if !self.args.format.is_short() && section != Some(sec) {
+            if section != Some(sec) {
                 section = Some(sec);
                 writeln!(&mut output, "\n;; {} SECTION:", sec.to_str().to_uppercase())?;
             }
 
-            if !self.args.format.is_short() {
-                write!(
-                    &mut output,
-                    "{:dn_width$}{:ttl_width$}{:qc_width$}{:qt_width$}",
-                    header.name(),
-                    header.ttl().to_string(),
-                    header.rclass(),
-                    header.rtype(),
-                    dn_width = self.sizes.name,
-                    ttl_width = self.sizes.ttl,
-                    qc_width = self.sizes.rclass,
-                    qt_width = self.sizes.rtype,
-                )?;
-            }
+            write!(
+                &mut output,
+                "{:dn_width$}{:ttl_width$}{:qc_width$}{:qt_width$}",
+                header.name(),
+                header.ttl().to_string(),
+                header.rclass(),
+                header.rtype(),
+                dn_width = self.sizes.name,
+                ttl_width = self.sizes.ttl,
+                qc_width = self.sizes.rclass,
+                qt_width = self.sizes.rtype,
+            )?;
 
             let rtype = if self.args.format.is_rfc3597() {
                 Type::Any // use a type that forces RFC 3597 below
