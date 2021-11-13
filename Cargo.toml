@@ -19,7 +19,7 @@ net-smol = ["rsdns/net-smol", "smol"]
 socket2 = ["rsdns/socket2"]
 
 [dependencies.rsdns]
-version = "~0.9.0"
+version = "~0.10.0"
 default-features = false
 # path = "dep/rsdns"
 
@@ -45,5 +45,5 @@ features = [
 
 [build-dependencies]
 built = { version = "~0.5.1", features = ["git2", "chrono"] }
-tera = { version = "~1.12.1", default-features = false }
+tera = { version = "~1.15.0", default-features = false }
 sysinfo = { version = "~0.20.0" }
