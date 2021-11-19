@@ -1,6 +1,6 @@
 use anyhow::Result;
 use rsdns::{
-    clients::{ClientConfig, ProtocolStrategy, Recursion},
+    clients::{ClientConfig, EDns, ProtocolStrategy, Recursion},
     constants::Type,
 };
 use std::{
@@ -111,6 +111,13 @@ pub struct Args {
     ///                 When enabled, only record data is printed,
     ///                 one record on a line.
     ///
+    /// +bufsize=#    - sets the EDNS0 max udp payload size [512, 65535].
+    ///                 [default: 4096]
+    ///
+    /// +[no]edns[=#] - enables/disables EDNS0.
+    ///                 Optionally, sets the EDNS version [0, 255].
+    ///                 By default, EDNS is enabled with version 0.
+    ///
     /// +[no]rust     - enables (disables) rust output.
     ///                 When enabled, prints the response as a Rust array.
     ///
@@ -208,6 +215,9 @@ impl Args {
         let mut qnames = Vec::new();
         let mut qtype = Type::A;
         let mut format = OutputFormat::Zone;
+        let mut edns_enabled = true;
+        let mut edns_version: u8 = 0;
+        let mut edns_udp_payload_size: u16 = 4096;
 
         for a in self.positional.iter() {
             match a.as_str() {
@@ -222,6 +232,16 @@ impl Args {
                 "+norust" => format = OutputFormat::Zone,
                 "+gen" => format = OutputFormat::ZoneRfc3597,
                 "+nogen" => format = OutputFormat::Zone,
+                "+noedns" => edns_enabled = false,
+                "+edns" => {
+                    edns_enabled = true;
+                    edns_version = 0
+                }
+                s if s.starts_with("+edns=") => {
+                    edns_enabled = true;
+                    edns_version = get_param_val(s)
+                }
+                s if s.starts_with("+bufsize=") => edns_udp_payload_size = get_param_val(s),
                 s if s.starts_with('@') => match IpAddr::from_str(&s[1..]) {
                     Ok(addr) => {
                         self.nameservers.push(s[1..].to_string());
@@ -235,13 +255,19 @@ impl Args {
                 s if Type::from_str(&s.to_uppercase()).is_ok() => {
                     qtype = Type::from_str(&s.to_uppercase()).unwrap()
                 }
-                _ => qnames.push(a.clone()),
+                s => {
+                    if s.starts_with('+') {
+                        eprintln!("bad option: {}", s);
+                        exit(1);
+                    }
+                    qnames.push(a.clone())
+                }
             }
         }
 
         self.format = format;
 
-        if !qtype.is_data_type() && qtype != Type::Any {
+        if qtype == Type::Opt || (!qtype.is_data_type() && qtype != Type::Any) {
             eprintln!("only data-type queries are supported or ANY: {}", qtype);
             exit(1);
         }
@@ -258,6 +284,15 @@ impl Args {
             }
         };
 
+        let edns = if edns_enabled {
+            EDns::On {
+                version: edns_version,
+                udp_payload_size: edns_udp_payload_size,
+            }
+        } else {
+            EDns::Off
+        };
+
         #[allow(unused_mut)]
         let mut config = ClientConfig::with_nameserver(nameserver)
             .set_protocol_strategy(protocol_strategy)
@@ -267,7 +302,8 @@ impl Args {
             } else {
                 None
             })
-            .set_query_lifetime(Duration::from_millis(self.query_lifetime));
+            .set_query_lifetime(Duration::from_millis(self.query_lifetime))
+            .set_edns(edns);
 
         #[cfg(all(target_os = "linux", feature = "net-tokio", feature = "socket2"))]
         if let Some(ref bd) = self.bind_device {
@@ -280,6 +316,16 @@ impl Args {
 
         Ok(())
     }
+}
+
+fn get_param_val<T: FromStr>(s: &str) -> T {
+    if let Some(p) = s.split('=').nth(1) {
+        if let Ok(v) = T::from_str(p) {
+            return v;
+        }
+    }
+    eprintln!("bad option: {}", s);
+    exit(1);
 }
 
 impl Default for OutputFormat {

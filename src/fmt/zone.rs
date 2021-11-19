@@ -2,13 +2,13 @@ use crate::{
     args::Args,
     fmt::rdata::{RDataFmt, RDataFormatter},
 };
-use anyhow::Result;
+use anyhow::{bail, Result};
 use chrono::{DateTime, Local};
 use rsdns::{
-    constants::Type,
-    message::{reader::MessageReader, Header},
+    constants::{RecordsSection, Type},
+    message::{reader::MessageReader, Header, RCodeValue},
     names::InlineName,
-    records::data::*,
+    records::{data::*, Opt},
 };
 use std::{
     convert::TryFrom,
@@ -39,6 +39,7 @@ pub struct Output<'a, 'b> {
     ts: Option<SystemTime>,
     elapsed: Option<Duration>,
     sizes: Sizes,
+    opt: Option<Opt>,
 }
 
 macro_rules! fmt_size {
@@ -57,7 +58,7 @@ impl<'a, 'b> Output<'a, 'b> {
         ts: Option<SystemTime>,
         elapsed: Option<Duration>,
     ) -> Result<Self> {
-        let sizes = Self::find_sizes(msg)?;
+        let (sizes, opt) = Self::scan_message(msg)?;
         Ok(Self {
             args,
             msg,
@@ -65,11 +66,13 @@ impl<'a, 'b> Output<'a, 'b> {
             ts,
             elapsed,
             sizes,
+            opt,
         })
     }
 
-    fn find_sizes(msg: &[u8]) -> Result<Sizes> {
+    fn scan_message(msg: &[u8]) -> Result<(Sizes, Option<Opt>)> {
         let mut sizes = Sizes::default();
+        let mut opt = None;
         let mut buf = String::new();
         let mut mr = MessageReader::new(msg)?;
         mr.header()?;
@@ -80,13 +83,18 @@ impl<'a, 'b> Output<'a, 'b> {
 
         while mr.has_records() {
             let header = mr.record_header::<InlineName>()?;
-            mr.skip_record_data(header.marker())?;
 
             sizes.name = sizes.name.max(header.name().len());
             sizes.rclass = sizes.rclass.max(fmt_size!(header.rclass(), buf));
             sizes.rtype = sizes.rtype.max(fmt_size!(header.rtype(), buf));
             sizes.ttl = sizes.ttl.max(fmt_size!(header.ttl(), buf));
             sizes.rdlen = sizes.rdlen.max(fmt_size!(header.rdlen(), buf));
+
+            if header.section() == RecordsSection::Additional && header.rtype() == Type::Opt {
+                opt = Some(mr.opt_record(header.marker())?);
+            } else {
+                mr.skip_record_data(header.marker())?;
+            }
         }
 
         sizes.name = DOMAIN_NAME_WIDTH.max(sizes.name + 2);
@@ -94,7 +102,7 @@ impl<'a, 'b> Output<'a, 'b> {
         sizes.rclass = QCLASS_WIDTH.max(sizes.rclass + 1);
         sizes.ttl = TTL_WIDTH.max(sizes.ttl + 1);
 
-        Ok(sizes)
+        Ok((sizes, opt))
     }
 
     pub fn print(&self) -> Result<()> {
@@ -107,19 +115,27 @@ impl<'a, 'b> Output<'a, 'b> {
     fn print_message(&self) -> Result<()> {
         let mut mr = MessageReader::new(self.msg)?;
         let header = mr.header()?;
-        println!("{}", Self::format_response_header(&header)?);
+        println!("{}", self.format_response_header(&header)?);
+        if self.opt.is_some() {
+            print!("{}", self.format_opt()?);
+        }
         println!("{}", self.format_question(&mut mr)?);
-        println!("{}", self.format_records(&mut mr)?);
+        println!("{}", self.format_records(&mut mr, &header)?);
         Ok(())
     }
 
-    fn format_response_header(header: &Header) -> Result<String> {
+    fn format_response_header(&self, header: &Header) -> Result<String> {
         let mut output = String::new();
+        let status = if let Some(ref o) = self.opt {
+            RCodeValue::extended(header.flags.response_code(), o.rcode_extension())
+        } else {
+            header.flags.response_code()
+        };
         writeln!(
             &mut output,
             ";; ->>HEADER<<- opcode: {}, status: {}, id: {}",
             header.flags.opcode(),
-            header.flags.response_code(),
+            status,
             header.id,
         )?;
         writeln!(
@@ -156,26 +172,33 @@ impl<'a, 'b> Output<'a, 'b> {
         Ok(output)
     }
 
-    fn format_records(&self, mr: &mut MessageReader) -> Result<String> {
+    fn format_records(&self, mr: &mut MessageReader, header: &Header) -> Result<String> {
         let mut output = String::new();
         let mut section = None;
 
         while mr.has_records() {
-            let header = mr.record_header::<InlineName>()?;
-            let sec = header.section();
+            let rec_header = mr.record_header::<InlineName>()?;
+            let sec = rec_header.section();
 
             if section != Some(sec) {
                 section = Some(sec);
-                writeln!(&mut output, "\n;; {} SECTION:", sec.to_str().to_uppercase())?;
+                if sec != RecordsSection::Additional || self.opt.is_none() || header.ar_count > 1 {
+                    writeln!(&mut output, "\n;; {} SECTION:", sec.to_str().to_uppercase())?;
+                }
+            }
+
+            if sec == RecordsSection::Additional && rec_header.rtype() == Type::Opt {
+                mr.skip_record_data(rec_header.marker())?;
+                continue;
             }
 
             write!(
                 &mut output,
                 "{:dn_width$}{:ttl_width$}{:qc_width$}{:qt_width$}",
-                header.name(),
-                header.ttl().to_string(),
-                header.rclass(),
-                header.rtype(),
+                rec_header.name(),
+                rec_header.ttl().to_string(),
+                rec_header.rclass(),
+                rec_header.rtype(),
                 dn_width = self.sizes.name,
                 ttl_width = self.sizes.ttl,
                 qc_width = self.sizes.rclass,
@@ -185,7 +208,7 @@ impl<'a, 'b> Output<'a, 'b> {
             let rtype = if self.args.format.is_rfc3597() {
                 Type::Any // use a type that forces RFC 3597 below
             } else {
-                match Type::try_from(header.rtype()) {
+                match Type::try_from(rec_header.rtype()) {
                     Ok(rt) => rt,
                     _ => Type::Any, // use a type that forces RFC 3597 below
                 }
@@ -193,39 +216,39 @@ impl<'a, 'b> Output<'a, 'b> {
 
             match rtype {
                 Type::A => {
-                    let a = mr.record_data::<A>(header.marker())?;
+                    let a = mr.record_data::<A>(rec_header.marker())?;
                     RDataFmt::fmt(&mut output, &a)?;
                 }
                 Type::Aaaa => {
-                    let aaaa = mr.record_data::<Aaaa>(header.marker())?;
+                    let aaaa = mr.record_data::<Aaaa>(rec_header.marker())?;
                     RDataFmt::fmt(&mut output, &aaaa)?;
                 }
                 Type::Cname => {
-                    let cname = mr.record_data::<Cname>(header.marker())?;
+                    let cname = mr.record_data::<Cname>(rec_header.marker())?;
                     RDataFmt::fmt(&mut output, &cname)?;
                 }
                 Type::Ns => {
-                    let ns = mr.record_data::<Ns>(header.marker())?;
+                    let ns = mr.record_data::<Ns>(rec_header.marker())?;
                     RDataFmt::fmt(&mut output, &ns)?;
                 }
                 Type::Soa => {
-                    let soa = mr.record_data::<Soa>(header.marker())?;
+                    let soa = mr.record_data::<Soa>(rec_header.marker())?;
                     RDataFmt::fmt(&mut output, &soa)?;
                 }
                 Type::Ptr => {
-                    let ptr = mr.record_data::<Ptr>(header.marker())?;
+                    let ptr = mr.record_data::<Ptr>(rec_header.marker())?;
                     RDataFmt::fmt(&mut output, &ptr)?;
                 }
                 Type::Mx => {
-                    let mx = mr.record_data::<Mx>(header.marker())?;
+                    let mx = mr.record_data::<Mx>(rec_header.marker())?;
                     RDataFmt::fmt(&mut output, &mx)?;
                 }
                 Type::Txt => {
-                    let txt = mr.record_data::<Txt>(header.marker())?;
+                    let txt = mr.record_data::<Txt>(rec_header.marker())?;
                     RDataFmt::fmt(&mut output, &txt)?;
                 }
                 Type::Hinfo => {
-                    let hinfo = mr.record_data::<Hinfo>(header.marker())?;
+                    let hinfo = mr.record_data::<Hinfo>(rec_header.marker())?;
                     RDataFmt::fmt(&mut output, &hinfo)?;
                 }
                 Type::Wks
@@ -236,11 +259,12 @@ impl<'a, 'b> Output<'a, 'b> {
                 | Type::Mf
                 | Type::Minfo
                 | Type::Md
+                | Type::Opt
                 | Type::Axfr
                 | Type::Maila
                 | Type::Mailb
                 | Type::Any => {
-                    let bytes = mr.record_data_bytes(header.marker())?;
+                    let bytes = mr.record_data_bytes(rec_header.marker())?;
                     write!(&mut output, "{}", self.format_rfc_3597(bytes)?)?;
                 }
             }
@@ -299,6 +323,28 @@ impl<'a, 'b> Output<'a, 'b> {
             env!("CH4_VERSION"),
             self.args.cmd_line()
         );
+    }
+
+    fn format_opt(&self) -> Result<String> {
+        let mut output = String::new();
+
+        if let Some(ref opt) = self.opt {
+            let mut flags = "";
+            if opt.dnssec_ok() {
+                flags = " d0";
+            }
+            writeln!(&mut output, ";; OPT PSEUDOSECTION:")?;
+            writeln!(
+                &mut output,
+                "; EDNS: version: {}, flags:{}; udp: {}",
+                opt.version(),
+                flags,
+                opt.udp_payload_size(),
+            )?;
+            Ok(output)
+        } else {
+            bail!("no opt record present");
+        }
     }
 
     fn print_footer(&self) {

@@ -107,7 +107,9 @@ impl<'a> Format<'a> {
             Type::Mx => Self::short_rrset::<data::Mx>(msg),
             Type::Txt => Self::short_rrset::<data::Txt>(msg),
             Type::Aaaa => Self::short_rrset::<data::Aaaa>(msg),
-            Type::Axfr | Type::Mailb | Type::Maila | Type::Any => bail!("invalid qtype"),
+            Type::Opt | Type::Axfr | Type::Mailb | Type::Maila | Type::Any => {
+                bail!("invalid qtype")
+            }
         }
     }
 
