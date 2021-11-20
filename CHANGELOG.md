@@ -5,6 +5,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.9.0] - 2021-11-20
+### Added
+- add support for EDNS0. EDNS is enabled by default with `version: 0` and `bufsize: 4096`
+
+  The following options allow EDNS customization:
+  - `+bufsize=<n_bytes>` - set the UDP payload size advertised in the `OPT` pseudo-record
+  - `+noedns` - disable EDNS
+  - `+edns[=<ver>]` - enable EDNS and optionally set a custom version
+
+### Changed
+- upgrade to `windows v0.28.0`
+- upgrade to `tera v1.15.0`
+
+
 ## [0.8.0] - 2021-10-30
 ### Changed
 - move to `Rust 2021`. The minimum supported rust version was raised to `1.56` (`MSRV 1.56`)
