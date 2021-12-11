@@ -46,4 +46,4 @@ features = [
 [build-dependencies]
 built = { version = "~0.5.1", features = ["git2", "chrono"] }
 tera = { version = "~1.15.0", default-features = false }
-sysinfo = { version = "~0.21.1" }
+sysinfo = { version = "~0.21.2" }
