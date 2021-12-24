@@ -2,10 +2,10 @@ use anyhow::{bail, Result};
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 
 use windows::Win32::{
-    Foundation::{ERROR_BUFFER_OVERFLOW, NO_ERROR, WIN32_ERROR},
+    Foundation::{ERROR_BUFFER_OVERFLOW, NO_ERROR},
     NetworkManagement::IpHelper::{
-        GetAdaptersAddresses, ADDRESS_FAMILY, AF_INET, AF_INET6, AF_UNSPEC,
-        GAA_FLAG_INCLUDE_TUNNEL_BINDINGORDER, IP_ADAPTER_ADDRESSES_LH,
+        GetAdaptersAddresses, AF_INET, AF_INET6, AF_UNSPEC, GAA_FLAG_INCLUDE_TUNNEL_BINDINGORDER,
+        IP_ADAPTER_ADDRESSES_LH,
     },
     Networking::WinSock::{SOCKADDR_IN, SOCKADDR_IN6},
 };
@@ -23,7 +23,7 @@ pub fn get_dns_servers() -> Result<Vec<IpAddr>> {
             &mut buf_size,
         );
 
-        match WIN32_ERROR::from(error) {
+        match error {
             ERROR_BUFFER_OVERFLOW => {}
             e => {
                 bail!("GetAdaptersAddresses#1 failed: {:?}", e);
@@ -45,7 +45,7 @@ pub fn get_dns_servers() -> Result<Vec<IpAddr>> {
             &mut buf_size,
         );
 
-        match WIN32_ERROR::from(error) {
+        match error {
             NO_ERROR => {}
             e => {
                 bail!("GetAdaptersAddresses#2 failed: {:?}", e);
@@ -75,7 +75,7 @@ unsafe fn get_adapter_dns_servers(a: &IP_ADAPTER_ADDRESSES_LH) -> Vec<IpAddr> {
     while !p_address.is_null() {
         let sock_addr = (*p_address).Address.lpSockaddr;
         if !sock_addr.is_null() {
-            match ADDRESS_FAMILY::from((*sock_addr).sa_family as u32) {
+            match (*sock_addr).sa_family as u32 {
                 AF_INET => {
                     let p_sockaddr_in: *const SOCKADDR_IN = sock_addr.cast();
                     let ipv4 = Ipv4Addr::from(u32::from_be((*p_sockaddr_in).sin_addr.S_un.S_addr));
