@@ -1074,9 +1074,9 @@ checksum = "f497285884f3fcff424ffc933e56d7cbca511def0c9831a7f9b5f6153e3cc89b"
 
 [[package]]
 name = "rsdns"
-version = "0.11.1"
+version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dab65b13a4e57f9931d690e6547ccf4b020c58fe18eb21cb1edba81d8658a215"
+checksum = "2d3f504ac6fb8b7a4c1623f5c051ec95f097dee615dbc4dc7494b9508ef5684c"
 dependencies = [
  "arrayvec",
  "async-std",
