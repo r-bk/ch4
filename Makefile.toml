@@ -8,4 +8,5 @@ args = ["test"]
 
 [tasks.clippy]
 command = "cargo"
+toolchain = "beta"
 args = ["clippy"]
