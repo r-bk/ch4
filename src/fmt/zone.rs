@@ -196,7 +196,7 @@ impl<'a, 'b> Output<'a, 'b> {
                 &mut output,
                 "{:dn_width$}{:ttl_width$}{:qc_width$}{:qt_width$}",
                 rec_header.name(),
-                rec_header.ttl().to_string(),
+                rec_header.ttl(),
                 rec_header.rclass(),
                 rec_header.rtype(),
                 dn_width = self.sizes.name,
