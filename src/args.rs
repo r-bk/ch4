@@ -182,7 +182,7 @@ impl Args {
         println!("ch4 semver:          {}", bi::PKG_VERSION);
         println!(
             "git hash:            {}",
-            bi::GIT_COMMIT_HASH.or(Some("n/a")).unwrap()
+            bi::GIT_COMMIT_HASH.unwrap_or("n/a")
         );
 
         println!("compiler:            {}", bi::RUSTC);
