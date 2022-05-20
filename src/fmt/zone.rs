@@ -84,15 +84,15 @@ impl<'a, 'b> Output<'a, 'b> {
         while mr.has_records() {
             let header = mr.record_header::<InlineName>()?;
 
-            sizes.name = sizes.name.max(header.name().len());
-            sizes.rclass = sizes.rclass.max(fmt_size!(header.rclass(), buf));
-            sizes.rtype = sizes.rtype.max(fmt_size!(header.rtype(), buf));
-            sizes.ttl = sizes.ttl.max(fmt_size!(header.ttl(), buf));
-            sizes.rdlen = sizes.rdlen.max(fmt_size!(header.rdlen(), buf));
-
             if header.section() == RecordsSection::Additional && header.rtype() == Type::Opt {
                 opt = Some(mr.opt_record(header.marker())?);
             } else {
+                sizes.name = sizes.name.max(header.name().len());
+                sizes.rclass = sizes.rclass.max(fmt_size!(header.rclass(), buf));
+                sizes.rtype = sizes.rtype.max(fmt_size!(header.rtype(), buf));
+                sizes.ttl = sizes.ttl.max(fmt_size!(header.ttl(), buf));
+                sizes.rdlen = sizes.rdlen.max(fmt_size!(header.rdlen(), buf));
+
                 mr.skip_record_data(header.marker())?;
             }
         }
