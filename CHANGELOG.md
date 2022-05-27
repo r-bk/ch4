@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.1] - 2022-05-27
+### Changed
+- refresh dependencies
+- upgrade to `windows v0.37.0`
+
+### Fixed
+- fix formatting of TTL in zone file format (must be explicitly left aligned)
+- fix calculation of column sizes in zone file format (skip `OPT` records in sizes calculation)
+
+
 ## [0.10.0] - 2022-04-29
 ### Changed
 - upgrade to `windows v0.36.1`.
@@ -268,3 +278,4 @@ This release only refreshes the dependencies, without changing anything in *ch4*
 [0.9.0]: https://github.com/r-bk/ch4/compare/v0.8.0...v0.9.0
 [0.9.1]: https://github.com/r-bk/ch4/compare/v0.9.0...v0.9.1
 [0.10.0]: https://github.com/r-bk/ch4/compare/v0.9.1...v0.10.0
+[0.10.1]: https://github.com/r-bk/ch4/compare/v0.10.0...v0.10.1
