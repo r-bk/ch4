@@ -1,5 +1,5 @@
 use std::{env, path::Path, process::Command};
-use sysinfo::{ProcessorExt, RefreshKind, System, SystemExt};
+use sysinfo::{CpuExt, CpuRefreshKind, RefreshKind, System, SystemExt};
 use tera::{Context, Tera};
 
 fn main() {
@@ -17,11 +17,16 @@ fn export_sysinfo() {
     let mut cpu_brand = na.clone();
 
     if System::IS_SUPPORTED {
-        let system = System::new_with_specifics(RefreshKind::new().with_cpu());
+        let system = System::new_with_specifics(RefreshKind::new().with_cpu(CpuRefreshKind::new()));
         name = system.name().or_else(|| na.clone());
         os_version = system.long_os_version().or_else(|| na.clone());
-        cpu_vendor = Some(system.global_processor_info().vendor_id().to_string());
-        cpu_brand = Some(system.global_processor_info().brand().to_string());
+        let cpu = system.cpus().first();
+        cpu_vendor = cpu
+            .map(|cpu| cpu.vendor_id().to_string())
+            .or_else(|| na.clone());
+        cpu_brand = cpu
+            .map(|cpu| cpu.brand().to_string())
+            .or_else(|| na.clone());
     }
 
     println!("cargo:rustc-env=CH4_SYSINFO_NAME={}", name.unwrap());
