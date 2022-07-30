@@ -19,16 +19,16 @@ net-smol = ["rsdns/net-smol", "smol"]
 socket2 = ["rsdns/socket2"]
 
 [dependencies.rsdns]
-version = "~0.13.1"
+version = "0.13.1"
 default-features = false
 # path = "dep/rsdns"
 
 [dependencies]
-cfg-if = "~1.0.0"
-anyhow = "~1.0.42"
-structopt = "~0.3.22"
-chrono = "~0.4.19"
-base64 = "~0.13.0"
+cfg-if = "1.0.0"
+anyhow = "1.0.42"
+structopt = "0.3.22"
+chrono = "0.4.19"
+base64 = "0.13.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 tokio = { version = "1", optional = true, features = ["rt", "macros"]}
@@ -45,6 +45,6 @@ features = [
 ]
 
 [build-dependencies]
-built = { version = "~0.5.1", features = ["git2", "chrono"] }
+built = { version = "0.5.1", features = ["git2", "chrono"] }
 tera = "1.16.0"
 sysinfo = "0.25.0"
