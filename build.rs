@@ -64,7 +64,7 @@ fn gen_ch4_version() {
 fn format_file(path: &std::path::Path) {
     let path_str = path.to_str().unwrap();
     let output = Command::new("rustfmt")
-        .args(&["--edition", "2018"])
+        .args(["--edition", "2018"])
         .arg(path_str)
         .output()
         .expect("failed to launch rustfmt");
