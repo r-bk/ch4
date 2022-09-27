@@ -16,13 +16,7 @@ pub fn get_dns_servers() -> Result<Vec<IpAddr>> {
 
     let ans = unsafe {
         let mut buf_size = 0;
-        let error = GetAdaptersAddresses(
-            AF_UNSPEC,
-            flags,
-            std::ptr::null_mut(),
-            std::ptr::null_mut(),
-            &mut buf_size,
-        );
+        let error = GetAdaptersAddresses(AF_UNSPEC, flags, None, None, &mut buf_size);
 
         match WIN32_ERROR(error) {
             ERROR_BUFFER_OVERFLOW => {}
@@ -41,8 +35,8 @@ pub fn get_dns_servers() -> Result<Vec<IpAddr>> {
         let error = GetAdaptersAddresses(
             AF_UNSPEC,
             flags,
-            std::ptr::null_mut(),
-            body.as_mut_ptr(),
+            None,
+            Some(body.as_mut_ptr()),
             &mut buf_size,
         );
 
