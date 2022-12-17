@@ -349,10 +349,10 @@ impl<'a, 'b> Output<'a, 'b> {
 
     fn print_footer(&self) {
         if let Some(elapsed) = self.elapsed {
-            println!(";; Query time: {:?}", elapsed);
+            println!(";; Query time: {elapsed:?}");
         }
         if let Some(ns) = self.ns {
-            println!(";; SERVER: {}", ns);
+            println!(";; SERVER: {ns}");
         }
         if let Some(ts) = self.ts {
             let datetime: DateTime<Local> = DateTime::from(ts);

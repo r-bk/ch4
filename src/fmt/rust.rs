@@ -35,7 +35,7 @@ pub fn fmt<W: Write>(
         //
         for (i, b) in chunk.iter().enumerate() {
             let pfx = if i == 0 { "    " } else { " " };
-            write!(w, "{}{:#04x?},", pfx, b)?;
+            write!(w, "{pfx}{b:#04x?},")?;
         }
 
         //
@@ -60,7 +60,7 @@ pub fn fmt<W: Write>(
             } else {
                 "."
             };
-            write!(w, "{}", c)?;
+            write!(w, "{c}")?;
         }
 
         writeln!(w, "| {}", (index * CHUNK_LEN))?;

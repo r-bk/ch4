@@ -203,7 +203,7 @@ impl Args {
     fn list_nameservers() -> Result<()> {
         let dns_servers = crate::os_nameservers()?;
         for addr in dns_servers.iter() {
-            println!("{}", addr);
+            println!("{addr}");
         }
         Ok(())
     }
@@ -257,7 +257,7 @@ impl Args {
                 }
                 s => {
                     if s.starts_with('+') {
-                        eprintln!("bad option: {}", s);
+                        eprintln!("bad option: {s}");
                         exit(1);
                     }
                     qnames.push(a.clone())
@@ -268,7 +268,7 @@ impl Args {
         self.format = format;
 
         if qtype == Type::Opt || (!qtype.is_data_type() && qtype != Type::Any) {
-            eprintln!("only data-type queries are supported or ANY: {}", qtype);
+            eprintln!("only data-type queries are supported or ANY: {qtype}");
             exit(1);
         }
 
@@ -324,7 +324,7 @@ fn get_param_val<T: FromStr>(s: &str) -> T {
             return v;
         }
     }
-    eprintln!("bad option: {}", s);
+    eprintln!("bad option: {s}");
     exit(1);
 }
 

@@ -99,7 +99,7 @@ impl<W: Write> RDataFormatter<W, data::Mx> for RDataFmt {
 impl<W: Write> RDataFormatter<W, data::Txt> for RDataFmt {
     fn fmt(w: &mut W, d: &data::Txt) -> Result<()> {
         let utf8 = str_from_text(&d.text);
-        write!(w, "\"{}\"", utf8)?;
+        write!(w, "\"{utf8}\"")?;
         Ok(())
     }
 }

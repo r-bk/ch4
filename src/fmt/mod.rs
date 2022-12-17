@@ -120,7 +120,7 @@ impl<'a> Format<'a> {
         let rr_set = RecordSet::<D>::from_msg(msg)?;
         let mut buf = String::new();
         rrset::fmt_short(&mut buf, &rr_set)?;
-        print!("{}", buf);
+        print!("{buf}");
         Ok(())
     }
 
@@ -141,7 +141,7 @@ impl<'a> Format<'a> {
         let name = format!("M{}", self.cnt);
         let mut buf = String::new();
         rust::fmt(&mut buf, qtype, qname, &name, msg)?;
-        println!("{}", buf);
+        println!("{buf}");
         Ok(())
     }
 }

@@ -52,13 +52,13 @@ fn gen_ch4_version() {
     match built::util::get_repo_head(path) {
         Ok(Some((_, commit))) => {
             let short_hash = &commit[..7.min(commit.len())];
-            ch4_version = format!("{} git:{}", ch4_version, short_hash);
+            ch4_version = format!("{ch4_version} git:{short_hash}");
         }
         Ok(None) => {}
         Err(_) => {}
     }
 
-    println!("cargo:rustc-env=CH4_VERSION={}", ch4_version);
+    println!("cargo:rustc-env=CH4_VERSION={ch4_version}");
 }
 
 fn format_file(path: &std::path::Path) {
@@ -92,7 +92,7 @@ fn write_main() {
     let tera = match Tera::new("templates/*.rs") {
         Ok(t) => t,
         Err(e) => {
-            panic!("Tera parsing error(s): {}", e);
+            panic!("Tera parsing error(s): {e}");
         }
     };
 
