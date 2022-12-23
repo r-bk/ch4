@@ -180,6 +180,7 @@ impl Args {
     fn show_info() {
         println!("build time:          {}", bi::BUILT_TIME_UTC);
         println!("ch4 semver:          {}", bi::PKG_VERSION);
+        println!("rsdns semver:        {}", Self::find_rsdns_version());
         println!(
             "git hash:            {}",
             bi::GIT_COMMIT_HASH.unwrap_or("n/a")
@@ -198,6 +199,16 @@ impl Args {
         println!("build os version:    {}", env!("CH4_SYSINFO_OS_VERSION"));
         println!("build cpu vendor:    {}", env!("CH4_SYSINFO_CPU_VENDOR"));
         println!("build cpu brand:     {}", env!("CH4_SYSINFO_CPU_BRAND"));
+    }
+
+    fn find_rsdns_version() -> &'static str {
+        for (pkg, version) in bi::DEPENDENCIES {
+            if pkg == "rsdns" {
+                return version;
+            }
+        }
+
+        "n/a"
     }
 
     fn list_nameservers() -> Result<()> {
