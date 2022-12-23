@@ -17,7 +17,7 @@ pub struct EncodedTime {
 
 impl From<EncodedTime> for NaiveDateTime {
     fn from(t: EncodedTime) -> Self {
-        NaiveDateTime::from_timestamp(t.secs, t.nanos)
+        NaiveDateTime::from_timestamp_opt(t.secs, t.nanos).expect("failed to convert a timestamp")
     }
 }
 
