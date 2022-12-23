@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [0.11.1] - 2022-12-23
+### Added
+- show `rsdns` version in `ch4 --info`
+
+
 ## [0.11.0] - 2022-12-23
 ### Changed
 - the MSRV is `1.64.0` now (was `1.60.0` before)
@@ -310,3 +316,4 @@ This release only refreshes the dependencies, without changing anything in *ch4*
 [0.10.2]: https://github.com/r-bk/ch4/compare/v0.10.1...v0.10.2
 [0.10.3]: https://github.com/r-bk/ch4/compare/v0.10.2...v0.10.3
 [0.11.0]: https://github.com/r-bk/ch4/compare/v0.10.3...v0.11.0
+[0.11.1]: https://github.com/r-bk/ch4/compare/v0.11.0...v0.11.1
