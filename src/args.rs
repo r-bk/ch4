@@ -16,8 +16,9 @@ pub mod bi {
     include!(concat!(env!("OUT_DIR"), "/built.rs"));
 }
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Default)]
 pub enum OutputFormat {
+    #[default]
     Zone,
     ZoneRfc3597,
     Short,
@@ -337,12 +338,6 @@ fn get_param_val<T: FromStr>(s: &str) -> T {
     }
     eprintln!("bad option: {s}");
     exit(1);
-}
-
-impl Default for OutputFormat {
-    fn default() -> Self {
-        OutputFormat::Zone
-    }
 }
 
 impl OutputFormat {
