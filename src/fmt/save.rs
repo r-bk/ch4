@@ -87,8 +87,7 @@ impl EncodedMessage {
             timestamp: ts.map(EncodedTime::from),
             duration: elapsed.map(EncodedDuration::from),
         };
-        let v = serde_json::to_value(&res)?;
-        Ok(v)
+        Ok(serde_json::to_value(res)?)
     }
 
     pub fn save_all(v: &[serde_json::Value], path: &str) -> Result<()> {
