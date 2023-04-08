@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.2] - 2023-04-08
+### Changed
+- upgrade to `tera v1.18.1`
+- upgrade to `base64 v0.21.0`
+- upgrade to `built v0.6.0`
+- upgrade to `sysinfo v0.28.4`
+- upgrade to `windows v0.48.0`
+- upgrade to `rsdns v0.15.0`
+
+### Fixed
+- fix `clippy::derivable_impls` warning
+- fix `clippy::needless-borrow` warning
+
 
 ## [0.11.1] - 2022-12-23
 ### Added
@@ -317,3 +330,4 @@ This release only refreshes the dependencies, without changing anything in *ch4*
 [0.10.3]: https://github.com/r-bk/ch4/compare/v0.10.2...v0.10.3
 [0.11.0]: https://github.com/r-bk/ch4/compare/v0.10.3...v0.11.0
 [0.11.1]: https://github.com/r-bk/ch4/compare/v0.11.0...v0.11.1
+[0.11.2]: https://github.com/r-bk/ch4/compare/v0.11.1...v0.11.2
