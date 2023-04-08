@@ -119,7 +119,7 @@ dependencies = [
  "polling",
  "rustix",
  "slab",
- "socket2",
+ "socket2 0.4.9",
  "waker-fn",
 ]
 
@@ -1254,9 +1254,9 @@ checksum = "f162c6dd7b008981e4d40210aca20b4bd0f9b60ca9271061b07f78537722f2e1"
 
 [[package]]
 name = "rsdns"
-version = "0.14.0"
+version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ab82af1831da2b6920dcc668773e030beb04bb2cd397948ecfa4e50f9b5b0ef8"
+checksum = "6eede25b1d48c90a93167428ca549b977a598e1d2a9c708610f917308d2550f6"
 dependencies = [
  "arrayvec",
  "async-std",
@@ -1264,7 +1264,7 @@ dependencies = [
  "rand",
  "smol",
  "smol-timeout",
- "socket2",
+ "socket2 0.5.1",
  "tera",
  "thiserror",
  "tokio",
@@ -1443,6 +1443,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "socket2"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bc8d618c6641ae355025c449427f9e96b98abf99a772be3cef6708d15c77147a"
+dependencies = [
+ "libc",
+ "windows-sys 0.45.0",
+]
+
+[[package]]
 name = "strsim"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1616,7 +1626,7 @@ dependencies = [
  "libc",
  "mio",
  "pin-project-lite 0.2.9",
- "socket2",
+ "socket2 0.4.9",
  "tokio-macros",
  "windows-sys 0.45.0",
 ]
