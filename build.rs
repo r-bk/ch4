@@ -54,8 +54,7 @@ fn gen_ch4_version() {
     let manifest_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
     let path = Path::new(&manifest_dir);
     match built::util::get_repo_head(path) {
-        Ok(Some((_, commit))) => {
-            let short_hash = &commit[..7.min(commit.len())];
+        Ok(Some((_, _, short_hash))) => {
             ch4_version = format!("{ch4_version} git:{short_hash}");
         }
         Ok(None) => {}
