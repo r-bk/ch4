@@ -1,4 +1,5 @@
 use anyhow::Result;
+use base64::{engine::general_purpose::STANDARD as Base64Engine, Engine as _};
 use chrono::{DateTime, NaiveDateTime, Utc};
 use rsdns::constants::Type;
 use serde::{Deserialize, Serialize};
@@ -80,7 +81,7 @@ impl EncodedMessage {
         elapsed: Option<Duration>,
     ) -> Result<serde_json::Value> {
         let res = Self {
-            data: base64::encode(msg),
+            data: Base64Engine.encode(msg),
             qname: qname.map(|s| s.to_string()),
             qtype: qtype.map(|t| t.to_string()),
             nameserver: nameserver.map(|ns| ns.to_string()),
@@ -129,7 +130,7 @@ impl EncodedMessage {
     }
 
     pub fn msg(&self) -> Vec<u8> {
-        if let Ok(v) = base64::decode(&self.data) {
+        if let Ok(v) = Base64Engine.decode(&self.data) {
             v
         } else {
             Vec::new()
