@@ -46,61 +46,39 @@ jobs:
         with:
           submodules: true
 
-      - uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@v1
         with:
-          profile: minimal
           toolchain: ${{ matrix.rust }}
-          override: true
-          components: rustfmt, clippy
+          components: rustfmt,clippy
 
-      - uses: actions-rs/cargo@v1
-        name: build ch4
-        with:
-          command: build
-          args: --no-default-features --features ${{ matrix.feature }}
+      - name: build ch4
+        run: cargo build --no-default-features --features ${{ matrix.feature }}
 
-      - uses: actions-rs/cargo@v1
-        name: show ch4 info
+      - name: show ch4 info
         if: ${{ !(matrix.feature == 'net-async-std' && matrix.runs_on == 'windows-latest') }}
         env:
           RUST_BACKTRACE: "full"
-        with:
-          command: run
-          args: --no-default-features --features ${{ matrix.feature }} -- --info
+        run: cargo run --no-default-features --features ${{ matrix.feature }} -- --info
 
-      - uses: actions-rs/cargo@v1
-        name: ch4 list nameservers
+      - name: ch4 list nameservers
         if: ${{ !(matrix.feature == 'net-async-std' && matrix.runs_on == 'windows-latest') }}
         env:
           RUST_BACKTRACE: "full"
-        with:
-          command: run
-          args: --no-default-features --features ${{ matrix.feature }} -- --list-nameservers
+        run: cargo run --no-default-features --features ${{ matrix.feature }} -- --list-nameservers
 
-      - uses: actions-rs/cargo@v1
-        name: test ch4
-        with:
-          command: test
-          args: --no-default-features --features ${{ matrix.feature }}
+      - name: test ch4
+        run: cargo test --no-default-features --features ${{ matrix.feature }}
 
-      - uses: actions-rs/cargo@v1
-        name: lint ch4
-        with:
-          command: clippy
-          args: --no-default-features --features ${{ matrix.feature }} -- -D warnings
+      - name: lint ch4
+        run: cargo clippy --no-default-features --features ${{ matrix.feature }} -- -D warnings
 
   common-ci:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@v1
         with:
-          profile: minimal
           toolchain: nightly
-          override: true
           components: rustfmt
-      - uses: actions-rs/cargo@v1
-        name: format all
-        with:
-          command: fmt
-          args: -- --check
+      - name: format all
+        run: cargo fmt -- --check
