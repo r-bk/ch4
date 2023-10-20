@@ -14,12 +14,9 @@ use crate::{
 };
 use anyhow::{bail, Result};
 use rdata::{RDataFmt, RDataFormatter};
-use rsdns::{
-    constants::Type,
-    records::{
-        data::{self, RData},
-        RecordSet,
-    },
+use rsdns::records::{
+    data::{self, RData},
+    RecordSet, Type,
 };
 use std::{
     net::SocketAddr,
@@ -89,26 +86,30 @@ impl<'a> Format<'a> {
     }
 
     fn short(&self, msg: &[u8]) -> Result<()> {
-        match self.args.qtype() {
+        let qtype = self.args.qtype();
+        match qtype {
             Type::A => Self::short_rrset::<data::A>(msg),
-            Type::Ns => Self::short_rrset::<data::Ns>(msg),
-            Type::Md => Self::short_rrset::<data::Md>(msg),
-            Type::Mf => Self::short_rrset::<data::Mf>(msg),
-            Type::Cname => Self::short_rrset::<data::Cname>(msg),
-            Type::Soa => Self::short_rrset::<data::Soa>(msg),
-            Type::Mb => Self::short_rrset::<data::Mb>(msg),
-            Type::Mg => Self::short_rrset::<data::Mg>(msg),
-            Type::Mr => Self::short_rrset::<data::Mr>(msg),
-            Type::Null => Self::short_rrset::<data::Null>(msg),
-            Type::Wks => Self::short_rrset::<data::Wks>(msg),
-            Type::Ptr => Self::short_rrset::<data::Ptr>(msg),
-            Type::Hinfo => Self::short_rrset::<data::Hinfo>(msg),
-            Type::Minfo => Self::short_rrset::<data::Minfo>(msg),
-            Type::Mx => Self::short_rrset::<data::Mx>(msg),
-            Type::Txt => Self::short_rrset::<data::Txt>(msg),
-            Type::Aaaa => Self::short_rrset::<data::Aaaa>(msg),
-            Type::Opt | Type::Axfr | Type::Mailb | Type::Maila | Type::Any => {
-                bail!("invalid qtype")
+            Type::NS => Self::short_rrset::<data::Ns>(msg),
+            Type::MD => Self::short_rrset::<data::Md>(msg),
+            Type::MF => Self::short_rrset::<data::Mf>(msg),
+            Type::CNAME => Self::short_rrset::<data::Cname>(msg),
+            Type::SOA => Self::short_rrset::<data::Soa>(msg),
+            Type::MB => Self::short_rrset::<data::Mb>(msg),
+            Type::MG => Self::short_rrset::<data::Mg>(msg),
+            Type::MR => Self::short_rrset::<data::Mr>(msg),
+            Type::NULL => Self::short_rrset::<data::Null>(msg),
+            Type::WKS => Self::short_rrset::<data::Wks>(msg),
+            Type::PTR => Self::short_rrset::<data::Ptr>(msg),
+            Type::HINFO => Self::short_rrset::<data::Hinfo>(msg),
+            Type::MINFO => Self::short_rrset::<data::Minfo>(msg),
+            Type::MX => Self::short_rrset::<data::Mx>(msg),
+            Type::TXT => Self::short_rrset::<data::Txt>(msg),
+            Type::AAAA => Self::short_rrset::<data::Aaaa>(msg),
+            t if t.is_meta_type() => {
+                bail!("invalid qtype: {}", qtype);
+            }
+            _ => {
+                bail!("unsupported qtype: {}", qtype)
             }
         }
     }

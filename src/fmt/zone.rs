@@ -5,13 +5,11 @@ use crate::{
 use anyhow::{bail, Result};
 use chrono::{DateTime, Local};
 use rsdns::{
-    constants::{RecordsSection, Type},
-    message::{reader::MessageReader, Header, RCodeValue},
+    message::{reader::MessageReader, Header, RCode, RecordsSection},
     names::InlineName,
-    records::{data::*, Opt},
+    records::{data::*, Opt, Type},
 };
 use std::{
-    convert::TryFrom,
     fmt::Write,
     net::SocketAddr,
     time::{Duration, SystemTime},
@@ -84,7 +82,7 @@ impl<'a, 'b> Output<'a, 'b> {
         while mr.has_records() {
             let header = mr.record_header::<InlineName>()?;
 
-            if header.section() == RecordsSection::Additional && header.rtype() == Type::Opt {
+            if header.section() == RecordsSection::Additional && header.rtype() == Type::OPT {
                 opt = Some(mr.opt_record(header.marker())?);
             } else {
                 sizes.name = sizes.name.max(header.name().len());
@@ -127,7 +125,7 @@ impl<'a, 'b> Output<'a, 'b> {
     fn format_response_header(&self, header: &Header) -> Result<String> {
         let mut output = String::new();
         let status = if let Some(ref o) = self.opt {
-            RCodeValue::extended(header.flags.response_code(), o.rcode_extension())
+            RCode::extended(header.flags.response_code(), o.rcode_extension())
         } else {
             header.flags.response_code()
         };
@@ -187,7 +185,7 @@ impl<'a, 'b> Output<'a, 'b> {
                 }
             }
 
-            if sec == RecordsSection::Additional && rec_header.rtype() == Type::Opt {
+            if sec == RecordsSection::Additional && rec_header.rtype() == Type::OPT {
                 mr.skip_record_data(rec_header.marker())?;
                 continue;
             }
@@ -206,12 +204,9 @@ impl<'a, 'b> Output<'a, 'b> {
             )?;
 
             let rtype = if self.args.format.is_rfc3597() {
-                Type::Any // use a type that forces RFC 3597 below
+                Type::ANY // use a type that forces RFC 3597 below
             } else {
-                match Type::try_from(rec_header.rtype()) {
-                    Ok(rt) => rt,
-                    _ => Type::Any, // use a type that forces RFC 3597 below
-                }
+                rec_header.rtype()
             };
 
             match rtype {
@@ -219,51 +214,39 @@ impl<'a, 'b> Output<'a, 'b> {
                     let a = mr.record_data::<A>(rec_header.marker())?;
                     RDataFmt::fmt(&mut output, &a)?;
                 }
-                Type::Aaaa => {
+                Type::AAAA => {
                     let aaaa = mr.record_data::<Aaaa>(rec_header.marker())?;
                     RDataFmt::fmt(&mut output, &aaaa)?;
                 }
-                Type::Cname => {
+                Type::CNAME => {
                     let cname = mr.record_data::<Cname>(rec_header.marker())?;
                     RDataFmt::fmt(&mut output, &cname)?;
                 }
-                Type::Ns => {
+                Type::NS => {
                     let ns = mr.record_data::<Ns>(rec_header.marker())?;
                     RDataFmt::fmt(&mut output, &ns)?;
                 }
-                Type::Soa => {
+                Type::SOA => {
                     let soa = mr.record_data::<Soa>(rec_header.marker())?;
                     RDataFmt::fmt(&mut output, &soa)?;
                 }
-                Type::Ptr => {
+                Type::PTR => {
                     let ptr = mr.record_data::<Ptr>(rec_header.marker())?;
                     RDataFmt::fmt(&mut output, &ptr)?;
                 }
-                Type::Mx => {
+                Type::MX => {
                     let mx = mr.record_data::<Mx>(rec_header.marker())?;
                     RDataFmt::fmt(&mut output, &mx)?;
                 }
-                Type::Txt => {
+                Type::TXT => {
                     let txt = mr.record_data::<Txt>(rec_header.marker())?;
                     RDataFmt::fmt(&mut output, &txt)?;
                 }
-                Type::Hinfo => {
+                Type::HINFO => {
                     let hinfo = mr.record_data::<Hinfo>(rec_header.marker())?;
                     RDataFmt::fmt(&mut output, &hinfo)?;
                 }
-                Type::Wks
-                | Type::Null
-                | Type::Mr
-                | Type::Mg
-                | Type::Mb
-                | Type::Mf
-                | Type::Minfo
-                | Type::Md
-                | Type::Opt
-                | Type::Axfr
-                | Type::Maila
-                | Type::Mailb
-                | Type::Any => {
+                _ => {
                     let bytes = mr.record_data_bytes(rec_header.marker())?;
                     write!(&mut output, "{}", self.format_rfc_3597(bytes)?)?;
                 }

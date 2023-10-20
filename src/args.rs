@@ -1,7 +1,7 @@
 use anyhow::Result;
 use rsdns::{
     clients::{ClientConfig, EDns, ProtocolStrategy, Recursion},
-    constants::Type,
+    records::Type,
 };
 use std::{
     net::{IpAddr, SocketAddr},
@@ -279,7 +279,7 @@ impl Args {
 
         self.format = format;
 
-        if qtype == Type::Opt || (!qtype.is_data_type() && qtype != Type::Any) {
+        if qtype == Type::OPT || (!qtype.is_data_type() && qtype != Type::ANY) {
             eprintln!("only data-type queries are supported or ANY: {qtype}");
             exit(1);
         }

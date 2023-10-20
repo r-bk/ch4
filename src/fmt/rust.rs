@@ -1,5 +1,5 @@
 use anyhow::Result;
-use rsdns::constants::Type;
+use rsdns::records::Type;
 use std::fmt::Write;
 
 const CHUNK_LEN: usize = 12;

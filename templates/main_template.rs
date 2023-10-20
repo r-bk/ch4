@@ -1,6 +1,6 @@
 use crate::{args::Args, fmt::Format};
 use anyhow::Result;
-use rsdns::constants::Class;
+use rsdns::records::Class;
 use std::time::SystemTime;
 
 {% if async == "true" %}
@@ -38,7 +38,7 @@ pub {{ as }} fn main() -> Result<()> {
     for qname in args.qnames.iter() {
         let now = SystemTime::now();
         let size = client
-            .query_raw(qname, args.qtype(), Class::In, &mut buf){{ aw }}?;
+            .query_raw(qname, args.qtype(), Class::IN, &mut buf){{ aw }}?;
         let elapsed = now.elapsed().expect("time failed");
         format.add(Some(qname), Some(args.qtype()), &buf[..size], Some(args.config.nameserver()),
                    Some(now), Some(elapsed))?;
