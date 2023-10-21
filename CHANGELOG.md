@@ -5,6 +5,71 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.0] - 2023-10-21
+
+### Added
+
+- `ch4` now supports unknown record types, i.e. record types which are still
+not officially supported in `rsdns`. Such record types can be specified following
+rules of [RFC 3597 section 5] for unknown types and classes. Note that `dig`
+also supports types specified in this format. The following snippet shows a
+query for `CAA` records on `bbc.com`.
+
+```text
+$> ch4 TYPE257 bbc.com
+
+; <<>> ch4 0.12.0 <<>> TYPE257 bbc.com
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 50331
+;; flags: qr rd ra; QUERY: 1, ANSWER: 4, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 65494
+;; QUESTION SECTION:
+;bbc.com.                      IN     TYPE257
+
+;; ANSWER SECTION:
+bbc.com.                300    IN     TYPE257 \# 32 0005696f 6465666d 61696c74 6f3a7365 63757269 74794062 62632e63 6f2e756b
+bbc.com.                300    IN     TYPE257 \# 25 00096973 73756577 696c6467 6c6f6261 6c736967 6e2e636f 6d
+bbc.com.                300    IN     TYPE257 \# 21 00056973 73756567 6c6f6261 6c736967 6e2e636f 6d
+bbc.com.                300    IN     TYPE257 \# 19 00056973 73756564 69676963 6572742e 636f6d
+
+$> dig TYPE257 bbc.com
+
+; <<>> DiG 9.18.18-0ubuntu2-Ubuntu <<>> TYPE257 bbc.com
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 25011
+;; flags: qr rd ra; QUERY: 1, ANSWER: 4, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 65494
+;; QUESTION SECTION:
+;bbc.com.   IN CAA
+
+;; ANSWER SECTION:
+bbc.com.  116 IN CAA 0 issue "globalsign.com"
+bbc.com.  116 IN CAA 0 issuewild "globalsign.com"
+bbc.com.  116 IN CAA 0 iodef "mailto:security@bbc.co.uk"
+bbc.com.  116 IN CAA 0 issue "digicert.com"
+
+;; Query time: 0 msec
+;; SERVER: 127.0.0.53#53(127.0.0.53) (UDP)
+;; WHEN: Sat Oct 21 22:22:10 IDT 2023
+;; MSG SIZE  rcvd: 181
+
+```
+
+[RFC 3597 section 5]: https://www.rfc-editor.org/rfc/rfc3597.html#section-5
+
+### Changed
+
+- the MSRV is `1.66` now due to various dependencies
+- upgrade to `rsdns v0.16.0`
+- upgrade to `built v0.7.1`
+- upgrade to `windows v0.51.0`
+- upgrade to `tera v0.19.0`
+- upgrade to `sysinfo v0.29.9`
+
 ## [0.11.2] - 2023-04-08
 
 ### Changed
@@ -367,3 +432,4 @@ This release only refreshes the dependencies, without changing anything in *ch4*
 [0.11.0]: https://github.com/r-bk/ch4/compare/v0.10.3...v0.11.0
 [0.11.1]: https://github.com/r-bk/ch4/compare/v0.11.0...v0.11.1
 [0.11.2]: https://github.com/r-bk/ch4/compare/v0.11.1...v0.11.2
+[0.12.0]: https://github.com/r-bk/ch4/compare/v0.11.2...v0.12.0
