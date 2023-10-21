@@ -3,11 +3,7 @@ use sysinfo::{CpuExt, CpuRefreshKind, RefreshKind, System, SystemExt};
 use tera::{Context, Tera};
 
 fn main() {
-    let mut opts = built::Options::default();
-    opts.set_dependencies(true);
-    let src = env::var("CARGO_MANIFEST_DIR").unwrap();
-    let dst = Path::new(&env::var("OUT_DIR").unwrap()).join("built.rs");
-    built::write_built_file_with_opts(&opts, src.as_ref(), &dst).expect("built failed");
+    built::write_built_file().expect("built failed");
     gen_ch4_version();
     export_sysinfo();
     write_main();
