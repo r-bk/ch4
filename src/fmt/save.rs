@@ -35,7 +35,7 @@ impl From<SystemTime> for EncodedTime {
 impl From<EncodedTime> for SystemTime {
     fn from(et: EncodedTime) -> Self {
         let ndt: NaiveDateTime = et.into();
-        let dt: DateTime<Utc> = DateTime::from_utc(ndt, Utc);
+        let dt: DateTime<Utc> = DateTime::from_naive_utc_and_offset(ndt, Utc);
         dt.into()
     }
 }
