@@ -1,5 +1,5 @@
 use std::{env, path::Path, process::Command};
-use sysinfo::{CpuExt, CpuRefreshKind, RefreshKind, System, SystemExt};
+use sysinfo::{CpuRefreshKind, RefreshKind, System};
 use tera::{Context, Tera};
 
 fn main() {
@@ -16,10 +16,11 @@ fn export_sysinfo() {
     let mut cpu_vendor = na.clone();
     let mut cpu_brand = na.clone();
 
-    if System::IS_SUPPORTED {
-        let system = System::new_with_specifics(RefreshKind::new().with_cpu(CpuRefreshKind::new()));
-        name = system.name().or_else(|| na.clone());
-        os_version = system.long_os_version().or_else(|| na.clone());
+    if sysinfo::IS_SUPPORTED_SYSTEM {
+        let system =
+            System::new_with_specifics(RefreshKind::new().with_cpu(CpuRefreshKind::everything()));
+        name = System::name().or_else(|| na.clone());
+        os_version = System::long_os_version().or_else(|| na.clone());
         let cpu = system.cpus().first();
         cpu_vendor = cpu
             .map(|cpu| cpu.vendor_id().to_string())
