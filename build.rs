@@ -61,21 +61,14 @@ fn gen_ch4_version() {
     println!("cargo:rustc-env=CH4_VERSION={ch4_version}");
 }
 
-fn format_file(path: &std::path::Path) {
+fn format_file(path: &std::path::Path) -> bool {
     let path_str = path.to_str().unwrap();
-    let output = Command::new("rustfmt")
+    Command::new("rustfmt")
         .args(["--edition", "2018"])
         .arg(path_str)
         .output()
-        .expect("failed to launch rustfmt");
-
-    assert!(
-        output.status.success(),
-        "failed to format {}\nstdout: {}\nstderr: {}",
-        path_str,
-        std::str::from_utf8(&output.stdout).unwrap(),
-        std::str::from_utf8(&output.stderr).unwrap(),
-    );
+        .map(|o| o.status.success())
+        .unwrap_or(false)
 }
 
 fn write_file(tera: &Tera, context: &Context, file_name: &str) {
