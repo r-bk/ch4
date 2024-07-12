@@ -72,6 +72,35 @@ jobs:
       - name: lint ch4
         run: cargo clippy --no-default-features --features ${{ matrix.feature }} -- -D warnings
 
+  no-rustfmt:
+    runs-on: ubuntu-latest
+    env:
+      RUSTFLAGS: --deny warnings
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: stable
+      - name: remove rustfmt
+        run: |
+          if which rustfmt; then
+            rm $(which rustfmt)
+            echo "remove-rustfmt: OK"
+          fi
+          if which rustfmt; then
+            echo "remove-rustfmt: VERIFY ERR"
+            exit 1
+          fi
+        shell: bash
+      - name: build without rustfmt
+        run: cargo build --all-targets
+
+      - name: test without rustfmt
+        run: cargo build --all-targets
+
+      - name: check without rustfmt
+        run: cargo check --all-targets
+
   common-ci:
     runs-on: ubuntu-latest
     steps:
