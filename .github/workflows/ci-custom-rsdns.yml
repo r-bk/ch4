@@ -3,8 +3,7 @@ name: ci-custom-rsdns
 on:
   push:
     branches:
-      - "**-custom"
-  pull_request:
+      - "**_custom"
 
 env:
   CARGO_TERM_COLOR: always
