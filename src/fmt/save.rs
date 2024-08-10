@@ -132,11 +132,7 @@ impl EncodedMessage {
     }
 
     pub fn msg(&self) -> Vec<u8> {
-        if let Ok(v) = Base64Engine.decode(&self.data) {
-            v
-        } else {
-            Vec::new()
-        }
+        Base64Engine.decode(&self.data).unwrap_or_default()
     }
 
     pub fn time(&self) -> Option<SystemTime> {
