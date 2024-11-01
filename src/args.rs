@@ -1,4 +1,5 @@
 use anyhow::Result;
+use clap::Parser;
 use rsdns::{
     clients::{ClientConfig, EDns, ProtocolStrategy, Recursion},
     records::Type,
@@ -9,7 +10,6 @@ use std::{
     str::FromStr,
     time::Duration,
 };
-use structopt::StructOpt;
 
 #[allow(dead_code)]
 pub mod bi {
@@ -25,60 +25,60 @@ pub enum OutputFormat {
     Rust,
 }
 
-#[derive(Debug, StructOpt)]
-#[structopt(about = "DNS Client", version = env!("CH4_VERSION"))]
+#[derive(Debug, Parser)]
+#[command(about = "DNS Client", version = env!("CH4_VERSION"))]
 pub struct Args {
     #[cfg(all(target_os = "linux", feature = "net-tokio", feature = "socket2"))]
-    #[structopt(short, long)]
+    #[arg(short, long)]
     bind_device: Option<String>,
 
-    #[structopt(short, long, default_value = "53")]
+    #[arg(short, long, default_value = "53")]
     port: u16,
 
-    #[structopt(
-        short = "l",
+    #[arg(
+        short = 'l',
         long,
         default_value = "10000",
         help = "query lifetime (in msec)."
     )]
     query_lifetime: u64,
 
-    #[structopt(
-        short = "t",
+    #[arg(
+        short = 't',
         long,
         default_value = "2000",
         help = "query timeout (in msec). Use 0 to disable."
     )]
     query_timeout: u64,
 
-    #[structopt(long, help = "Prints build information")]
+    #[arg(long, help = "Prints build information")]
     info: bool,
 
-    #[structopt(long, help = "Lists system nameservers")]
+    #[arg(long, help = "Lists system nameservers")]
     list_nameservers: bool,
 
-    #[structopt(skip)]
+    #[arg(skip)]
     pub format: OutputFormat,
 
-    #[structopt(skip)]
+    #[arg(skip)]
     pub config: ClientConfig,
 
-    #[structopt(skip)]
+    #[arg(skip)]
     pub qtype: Option<Type>,
 
-    #[structopt(skip)]
+    #[arg(skip)]
     pub qnames: Vec<String>,
 
-    #[structopt(skip)]
+    #[arg(skip)]
     pub nameservers: Vec<String>,
 
-    #[structopt(short = "s", long = "save", help = "save responses to file")]
+    #[arg(short = 's', long = "save", help = "save responses to file")]
     pub save_path: Option<String>,
 
-    #[structopt(short = "r", long = "read", help = "read responses from file")]
+    #[arg(short = 'r', long = "read", help = "read responses from file")]
     pub read_path: Option<String>,
 
-    #[structopt(verbatim_doc_comment)]
+    #[arg(verbatim_doc_comment)]
     /// Positional arguments ...
     ///
     /// Positional arguments may be specified without any particular order.
@@ -130,7 +130,7 @@ pub struct Args {
 
 impl Args {
     pub fn get() -> Result<Args> {
-        let mut args = Args::from_args();
+        let mut args = Args::parse();
 
         if args.info {
             Args::show_info();
@@ -142,7 +142,7 @@ impl Args {
             exit(0);
         }
 
-        args.parse()?;
+        args.parse_args()?;
 
         Ok(args)
     }
@@ -220,7 +220,7 @@ impl Args {
         Ok(())
     }
 
-    fn parse(&mut self) -> Result<()> {
+    fn parse_args(&mut self) -> Result<()> {
         let mut protocol_strategy = ProtocolStrategy::Udp;
         let mut nameserver_ip_addr: Option<IpAddr> = None;
         let mut recursion = Recursion::On;
