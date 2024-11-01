@@ -1,0 +1,33 @@
+{
+    "version": "0.2",
+    "language": "en",
+    "words": [
+        "bufsize",
+        "clippy",
+        "edns",
+        "endianness",
+        "iodef",
+        "issuewild",
+        "msrv",
+        "nameserver",
+        "noedns",
+        "noerror",
+        "nogen",
+        "norec",
+        "norust",
+        "noshort",
+        "notcp",
+        "pseudosection",
+        "qnames",
+        "qtype",
+        "rcvd",
+        "rsdns",
+        "rustc",
+        "rustfmt",
+        "smol",
+        "structopt",
+        "sysinfo",
+        "tera"
+    ],
+    "flagWords": []
+}
