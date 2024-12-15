@@ -9,6 +9,7 @@ keywords = ["dns", "dig", "resolver"]
 categories = ["command-line-utilities"]
 repository = "https://github.com/r-bk/ch4"
 exclude = [".git*", "Makefile.toml"]
+rust-version = "1.78"
 
 [features]
 default = ["net-tokio"]
