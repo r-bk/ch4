@@ -17,8 +17,9 @@ fn export_sysinfo() {
     let mut cpu_brand = na.clone();
 
     if sysinfo::IS_SUPPORTED_SYSTEM {
-        let system =
-            System::new_with_specifics(RefreshKind::new().with_cpu(CpuRefreshKind::everything()));
+        let system = System::new_with_specifics(
+            RefreshKind::nothing().with_cpu(CpuRefreshKind::everything()),
+        );
         name = System::name().or_else(|| na.clone());
         os_version = System::long_os_version().or_else(|| na.clone());
         let cpu = system.cpus().first();
