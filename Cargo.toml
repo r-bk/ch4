@@ -53,4 +53,4 @@ built = { version = "0.7.1", features = [
     "dependency-tree",
 ] }
 tera = "1.19.0"
-sysinfo = "0.32.0"
+sysinfo = "0.33.1"
