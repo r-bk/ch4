@@ -46,7 +46,7 @@ features = [
 ]
 
 [build-dependencies]
-built = { version = "0.7.1", features = [
+built = { version = "0.8.0", features = [
     "git2",
     "chrono",
     "semver",
