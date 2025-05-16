@@ -2,12 +2,12 @@ use crate::{
     args::Args,
     fmt::rdata::{RDataFmt, RDataFormatter},
 };
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use chrono::{DateTime, Local};
 use rsdns::{
-    message::{reader::MessageReader, Header, RCode, RecordsSection},
+    message::{Header, RCode, RecordsSection, reader::MessageReader},
     names::InlineName,
-    records::{data::*, Opt, Type},
+    records::{Opt, Type, data::*},
 };
 use std::{
     fmt::Write,

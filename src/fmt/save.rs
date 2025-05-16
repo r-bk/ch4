@@ -1,5 +1,5 @@
 use anyhow::Result;
-use base64::{engine::general_purpose::STANDARD as Base64Engine, Engine as _};
+use base64::{Engine as _, engine::general_purpose::STANDARD as Base64Engine};
 use chrono::{DateTime, NaiveDateTime, Utc};
 use rsdns::records::Type;
 use serde::{Deserialize, Serialize};
