@@ -1,6 +1,6 @@
 [package]
 name = "ch4"
-version = "0.16.0"
+version = "0.17.0"
 authors = ["Rafael Buchbinder <rafi@rbk.io>"]
 edition = "2024"
 description = "DNS Client Tool"
