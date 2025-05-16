@@ -1,6 +1,6 @@
 use crate::fmt::rdata::{RDataFmt, RDataFormatter};
 use anyhow::Result;
-use rsdns::records::{data::RData, RecordSet};
+use rsdns::records::{RecordSet, data::RData};
 use std::fmt::Write;
 
 pub fn fmt_short<W, D>(w: &mut W, rrset: &RecordSet<D>) -> Result<()>

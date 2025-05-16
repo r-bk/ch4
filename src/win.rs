@@ -1,10 +1,10 @@
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 
 use windows::Win32::{
     Foundation::{ERROR_BUFFER_OVERFLOW, NO_ERROR, WIN32_ERROR},
     NetworkManagement::IpHelper::{
-        GetAdaptersAddresses, GAA_FLAG_INCLUDE_TUNNEL_BINDINGORDER, IP_ADAPTER_ADDRESSES_LH,
+        GAA_FLAG_INCLUDE_TUNNEL_BINDINGORDER, GetAdaptersAddresses, IP_ADAPTER_ADDRESSES_LH,
     },
     Networking::WinSock::{AF_INET, AF_INET6, AF_UNSPEC, SOCKADDR_IN, SOCKADDR_IN6},
 };
@@ -66,27 +66,30 @@ unsafe fn get_adapter_dns_servers(a: &IP_ADAPTER_ADDRESSES_LH) -> Vec<IpAddr> {
     let mut p_address = a.FirstDnsServerAddress;
     let mut ans = Vec::new();
     while !p_address.is_null() {
-        let sock_addr = (*p_address).Address.lpSockaddr;
-        if !sock_addr.is_null() {
-            match (*sock_addr).sa_family {
-                AF_INET => {
-                    let p_sockaddr_in: *const SOCKADDR_IN = sock_addr.cast();
-                    let ipv4 = Ipv4Addr::from(u32::from_be((*p_sockaddr_in).sin_addr.S_un.S_addr));
-                    if !ipv4.is_unspecified() {
-                        ans.push(ipv4.into());
+        unsafe {
+            let sock_addr = (*p_address).Address.lpSockaddr;
+            if !sock_addr.is_null() {
+                match (*sock_addr).sa_family {
+                    AF_INET => {
+                        let p_sockaddr_in: *const SOCKADDR_IN = sock_addr.cast();
+                        let ipv4 =
+                            Ipv4Addr::from(u32::from_be((*p_sockaddr_in).sin_addr.S_un.S_addr));
+                        if !ipv4.is_unspecified() {
+                            ans.push(ipv4.into());
+                        }
                     }
-                }
-                AF_INET6 => {
-                    let p_sockaddr_in6: *const SOCKADDR_IN6 = sock_addr.cast();
-                    let ipv6 = Ipv6Addr::from((*p_sockaddr_in6).sin6_addr.u.Byte);
-                    if !ipv6.is_unspecified() && !is_unicast_site_local(&ipv6) {
-                        ans.push(ipv6.into());
+                    AF_INET6 => {
+                        let p_sockaddr_in6: *const SOCKADDR_IN6 = sock_addr.cast();
+                        let ipv6 = Ipv6Addr::from((*p_sockaddr_in6).sin6_addr.u.Byte);
+                        if !ipv6.is_unspecified() && !is_unicast_site_local(&ipv6) {
+                            ans.push(ipv6.into());
+                        }
                     }
+                    _ => {}
                 }
-                _ => {}
             }
+            p_address = (*p_address).Next;
         }
-        p_address = (*p_address).Next;
     }
     ans
 }

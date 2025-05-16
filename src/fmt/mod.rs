@@ -12,11 +12,11 @@ use crate::{
     args::{Args, OutputFormat},
     fmt::save::EncodedMessage,
 };
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use rdata::{RDataFmt, RDataFormatter};
 use rsdns::records::{
-    data::{self, RData},
     RecordSet, Type,
+    data::{self, RData},
 };
 use std::{
     net::SocketAddr,
