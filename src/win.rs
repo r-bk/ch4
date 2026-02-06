@@ -19,7 +19,7 @@ pub fn get_dns_servers() -> Result<Vec<IpAddr>> {
         match WIN32_ERROR(error) {
             ERROR_BUFFER_OVERFLOW => {}
             e => {
-                bail!("GetAdaptersAddresses#1 failed: {:?}", e);
+                bail!("GetAdaptersAddresses#1 failed: {e:?}");
             }
         }
 
@@ -41,7 +41,7 @@ pub fn get_dns_servers() -> Result<Vec<IpAddr>> {
         match WIN32_ERROR(error) {
             NO_ERROR => {}
             e => {
-                bail!("GetAdaptersAddresses#2 failed: {:?}", e);
+                bail!("GetAdaptersAddresses#2 failed: {e:?}");
             }
         }
 
