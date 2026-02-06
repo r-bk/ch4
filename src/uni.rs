@@ -21,10 +21,10 @@ pub fn get_dns_servers() -> Result<Vec<IpAddr>> {
         if let Some(conf_option) = parts.next() {
             match conf_option {
                 "nameserver" => {
-                    if let Some(address) = parts.next() {
-                        if let Ok(ip_addr) = IpAddr::from_str(address) {
-                            addr_list.push(ip_addr);
-                        }
+                    if let Some(address) = parts.next()
+                        && let Ok(ip_addr) = IpAddr::from_str(address)
+                    {
+                        addr_list.push(ip_addr);
                     }
                 }
                 _ => continue,

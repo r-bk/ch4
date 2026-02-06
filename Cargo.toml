@@ -9,7 +9,7 @@ keywords = ["dns", "dig", "resolver"]
 categories = ["command-line-utilities"]
 repository = "https://github.com/r-bk/ch4"
 exclude = [".git*", "Makefile.toml"]
-rust-version = "1.85"
+rust-version = "1.88"
 
 [features]
 default = ["net-tokio"]
@@ -37,7 +37,7 @@ async-std = { version = "1", optional = true, features = ["attributes"] }
 smol = { version = "2", optional = true }
 
 [target.'cfg(windows)'.dependencies.windows]
-version = "0.61.1"
+version = "0.62.2"
 features = [
     "Win32_Foundation",
     "Win32_NetworkManagement_IpHelper",
@@ -53,4 +53,4 @@ built = { version = "0.8.0", features = [
     "dependency-tree",
 ] }
 tera = "1.19.0"
-sysinfo = "0.35.1"
+sysinfo = "0.38.0"
