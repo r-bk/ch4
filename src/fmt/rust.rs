@@ -16,8 +16,8 @@ pub fn fmt<W: Write>(
     name: &str,
     msg: &[u8],
 ) -> Result<()> {
-    if qtype.is_some() && qname.is_some() {
-        writeln!(w, "// {} {}", qtype.unwrap(), qname.unwrap())?;
+    if let (Some(qt), Some(qn)) = (qtype, qname) {
+        writeln!(w, "// {qt} {qn}")?;
     }
 
     writeln!(w, "#[rustfmt::skip]")?;
