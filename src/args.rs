@@ -331,10 +331,10 @@ impl Args {
 }
 
 fn get_param_val<T: FromStr>(s: &str) -> T {
-    if let Some(p) = s.split('=').nth(1) {
-        if let Ok(v) = T::from_str(p) {
-            return v;
-        }
+    if let Some(p) = s.split('=').nth(1)
+        && let Ok(v) = T::from_str(p)
+    {
+        return v;
     }
     eprintln!("bad option: {s}");
     exit(1);

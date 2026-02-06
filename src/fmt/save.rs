@@ -114,19 +114,19 @@ impl EncodedMessage {
     }
 
     pub fn qtype(&self) -> Option<Type> {
-        if let Some(ref s) = self.qtype {
-            if let Ok(t) = Type::from_str(s) {
-                return Some(t);
-            }
+        if let Some(ref s) = self.qtype
+            && let Ok(t) = Type::from_str(s)
+        {
+            return Some(t);
         }
         None
     }
 
     pub fn nameserver(&self) -> Option<SocketAddr> {
-        if let Some(ref ns) = self.nameserver {
-            if let Ok(sa) = SocketAddr::from_str(ns) {
-                return Some(sa);
-            }
+        if let Some(ref ns) = self.nameserver
+            && let Ok(sa) = SocketAddr::from_str(ns)
+        {
+            return Some(sa);
         }
         None
     }
