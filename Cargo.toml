@@ -52,5 +52,6 @@ built = { version = "0.8.0", features = [
     "semver",
     "dependency-tree",
 ] }
-tera = "1.19.0"
+zyn = "0.5.4"
+prettyplease = "0.2"
 sysinfo = "0.38.0"
