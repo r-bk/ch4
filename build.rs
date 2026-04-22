@@ -1,6 +1,9 @@
-use std::{env, path::Path, process::Command};
+use std::{env, path::Path};
 use sysinfo::{CpuRefreshKind, RefreshKind, System};
-use tera::{Context, Tera};
+use zyn::TokenStream;
+
+#[path = "templates/main_template.rs"]
+mod main_template;
 
 fn main() {
     built::write_built_file().expect("built failed");
@@ -62,45 +65,23 @@ fn gen_ch4_version() {
     println!("cargo:rustc-env=CH4_VERSION={ch4_version}");
 }
 
-fn format_file(path: &std::path::Path) -> bool {
-    let path_str = path.to_str().unwrap();
-    Command::new("rustfmt")
-        .args(["--edition", "2021"])
-        .arg(path_str)
-        .output()
-        .map(|o| o.status.success())
-        .unwrap_or(false)
-}
-
-fn write_file(tera: &Tera, context: &Context, file_name: &str) {
+fn write_file(tokens: TokenStream, file_name: &str) {
     let out_dir = std::env::var_os("OUT_DIR").unwrap();
-    let file_data = tera
-        .render("main_template.rs", context)
-        .expect("failed to render template");
     let file_path = std::path::Path::new(&out_dir).join(file_name);
-    std::fs::write(&file_path, file_data).expect("failed to write file");
-    format_file(&file_path);
+    let syntax_tree: zyn::syn::File =
+        zyn::syn::parse2(tokens).expect("failed to parse generated tokens");
+    let pretty = prettyplease::unparse(&syntax_tree);
+    std::fs::write(&file_path, pretty).expect("failed to write file");
 }
 
 fn write_main() {
-    let tera = match Tera::new("templates/*.rs") {
-        Ok(t) => t,
-        Err(e) => {
-            panic!("Tera parsing error(s): {e}");
-        }
-    };
-
-    for async_value in &["true", "false"] {
-        let mut context = Context::new();
-        context.insert("async", async_value);
-        let file_name = format!(
-            "{}_main.rs",
-            if *async_value == "true" {
-                "async"
-            } else {
-                "std"
-            }
-        );
-        write_file(&tera, &context, &file_name);
+    for is_async in [true, false] {
+        let file_name = if is_async {
+            "async_main.rs"
+        } else {
+            "std_main.rs"
+        };
+        write_file(main_template::render(is_async), file_name);
     }
+    println!("cargo:rerun-if-changed=templates/main_template.rs");
 }
