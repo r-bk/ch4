@@ -516,3 +516,4 @@ This release only refreshes the dependencies, without changing anything in *ch4*
 [0.17.0]: https://github.com/r-bk/ch4/compare/v0.16.0...v0.17.0
 [0.18.0]: https://github.com/r-bk/ch4/compare/v0.17.0...v0.18.0
 [0.18.1]: https://github.com/r-bk/ch4/compare/v0.18.0...v0.18.1
+[0.19.0]: https://github.com/r-bk/ch4/compare/v0.18.1...v0.19.0
