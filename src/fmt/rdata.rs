@@ -110,3 +110,10 @@ impl<W: Write> RDataFormatter<W, data::Aaaa> for RDataFmt {
         Ok(())
     }
 }
+
+impl<W: Write> RDataFormatter<W, data::Srv> for RDataFmt {
+    fn fmt(w: &mut W, d: &data::Srv) -> Result<()> {
+        write!(w, "{} {} {} {}", d.priority, d.weight, d.port, d.target)?;
+        Ok(())
+    }
+}
