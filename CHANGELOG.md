@@ -7,6 +7,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.20.0] - 2026-04-25
+
+### Added
+
+- add support for `SRV` records
+
+### Changed
+
+- upgrade to `rsdns v0.23.0`
+
 ## [0.19.0] - 2026-04-22
 
 ### Changed
@@ -517,3 +527,4 @@ This release only refreshes the dependencies, without changing anything in *ch4*
 [0.18.0]: https://github.com/r-bk/ch4/compare/v0.17.0...v0.18.0
 [0.18.1]: https://github.com/r-bk/ch4/compare/v0.18.0...v0.18.1
 [0.19.0]: https://github.com/r-bk/ch4/compare/v0.18.1...v0.19.0
+[0.20.0]: https://github.com/r-bk/ch4/compare/v0.19.0...v0.20.0
