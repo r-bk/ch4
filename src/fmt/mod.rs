@@ -105,6 +105,7 @@ impl<'a> Format<'a> {
             Type::MX => Self::short_rrset::<data::Mx>(msg),
             Type::TXT => Self::short_rrset::<data::Txt>(msg),
             Type::AAAA => Self::short_rrset::<data::Aaaa>(msg),
+            Type::SRV => Self::short_rrset::<data::Srv>(msg),
             t if t.is_meta_type() => {
                 bail!("invalid qtype: {qtype}");
             }

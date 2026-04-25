@@ -246,6 +246,10 @@ impl<'a, 'b> Output<'a, 'b> {
                     let hinfo = mr.record_data::<Hinfo>(rec_header.marker())?;
                     RDataFmt::fmt(&mut output, &hinfo)?;
                 }
+                Type::SRV => {
+                    let srv = mr.record_data::<Srv>(rec_header.marker())?;
+                    RDataFmt::fmt(&mut output, &srv)?;
+                }
                 _ => {
                     let bytes = mr.record_data_bytes(rec_header.marker())?;
                     write!(&mut output, "{}", self.format_rfc_3597(bytes)?)?;
