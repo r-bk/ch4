@@ -29,7 +29,7 @@ cfg-if = "1.0.0"
 anyhow = "1.0.102"
 clap = { version = "4.6.1", features = ["derive"] }
 chrono = "0.4.45"
-base64 = "0.22.0"
+base64 = "0.23.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 tokio = { version = "1", optional = true, features = ["rt", "macros"] }
@@ -53,8 +53,8 @@ built = { version = "0.8.1", features = [
     "dependency-tree",
 ] }
 zyn = "0.5.4"
-prettyplease = "0.2"
-syn = { version = "2.0.0", default-features = false, features = [
+prettyplease = "0.3"
+syn = { version = "3.0.0", default-features = false, features = [
     "parsing",
     "full",
 ] }
