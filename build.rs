@@ -68,8 +68,7 @@ fn gen_ch4_version() {
 fn write_file(tokens: TokenStream, file_name: &str) {
     let out_dir = std::env::var_os("OUT_DIR").unwrap();
     let file_path = std::path::Path::new(&out_dir).join(file_name);
-    let syntax_tree: zyn::syn::File =
-        zyn::syn::parse2(tokens).expect("failed to parse generated tokens");
+    let syntax_tree: syn::File = syn::parse2(tokens).expect("failed to parse generated tokens");
     let pretty = prettyplease::unparse(&syntax_tree);
     std::fs::write(&file_path, pretty).expect("failed to write file");
 }
