@@ -363,6 +363,7 @@ dependencies = [
  "serde",
  "serde_json",
  "smol",
+ "syn 2.0.117",
  "sysinfo",
  "tokio",
  "windows",

@@ -54,4 +54,8 @@ built = { version = "0.8.1", features = [
 ] }
 zyn = "0.5.4"
 prettyplease = "0.2"
+syn = { version = "2.0.0", default-features = false, features = [
+    "parsing",
+    "full",
+] }
 sysinfo = "0.38.4"
